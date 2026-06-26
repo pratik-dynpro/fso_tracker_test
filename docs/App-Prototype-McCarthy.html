@@ -1,0 +1,393 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technician GPS Tracking — Interactive Prototype · McCarthy Tyre Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b1f27; --slate:#5c6675; --faint:#8a93a1;
+  --paper:#eef1f5; --surface:#ffffff;
+  --line:#dfe3ea; --line-strong:#c8cdd6;
+  --hi:#e2640f; --hi-dark:#b84e0a; --hi-tint:#fdf0e6;
+  --go:#1f8f55; --go-tint:#e7f4ec;
+  --caution:#cf4040; --caution-tint:#fbe9e9;
+  --med:#c77d11; --med-tint:#fbf1e0;
+  --tint:#f4f6f9;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --disp:"Space Grotesk","IBM Plex Sans",sans-serif;
+  --map:#e8ecf0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+
+.topbar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand .pin{width:20px;height:20px}
+.brand b{font-family:var(--disp);font-weight:700;font-size:.96rem}
+.brand span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.14em;color:var(--faint);display:block;margin-top:1px}
+.tabs{display:flex;gap:4px;background:var(--tint);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tabs button{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;border:0;background:transparent;color:var(--slate);padding:7px 14px;border-radius:7px;cursor:pointer}
+.tabs button.on{background:var(--surface);color:var(--hi-dark);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* control bar */
+.controls{background:var(--ink);color:#cfd5de}
+.controls-inner{max-width:1180px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.controls .lbl{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:#8893a3;margin-right:4px}
+.ctl{font-family:var(--mono);font-size:.74rem;border:1px solid #3a424f;background:#262d38;color:#e7ebf1;padding:7px 13px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:background .15s,border-color .15s}
+.ctl:hover{background:#2f3744}
+.ctl.go{background:var(--go);border-color:var(--go);color:#fff}
+.ctl.warn{background:transparent;border-color:#7a4a2a;color:#f0a86a}
+.ctl.warn:hover{background:#3a2a1c}
+.ctl:disabled{opacity:.4;cursor:not-allowed}
+.ctl .k{font-size:.62rem;opacity:.6}
+
+main{max-width:1180px;margin:0 auto;padding:26px 22px 80px}
+.view{display:none}.view.on{display:block}
+h2{font-family:var(--disp);font-weight:600;font-size:1.2rem;margin:0 0 14px}
+
+/* ===== map shared ===== */
+.console{display:grid;grid-template-columns:1fr 320px;gap:0;border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 6px 30px rgba(27,31,39,.08)}
+.console-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.console-title{font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;color:var(--go);background:var(--go-tint);border:1px solid #bfe2cc;padding:3px 9px;border-radius:20px}
+.live.lost{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.live .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.3s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.clock{font-family:var(--mono);font-size:.72rem;color:var(--slate)}
+
+.mapwrap{position:relative;min-height:470px;background:var(--map)}
+.mapwrap svg{display:block;width:100%;height:470px}
+.maptag{position:absolute;left:13px;bottom:11px;font-family:var(--mono);font-size:.6rem;color:var(--slate);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.legend{position:absolute;right:13px;top:13px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:.72rem;min-width:168px}
+.legend div{display:flex;align-items:center;gap:8px;padding:3px 0;color:var(--slate)}
+.legend .sw{width:20px;height:0;border-top:3px solid var(--go)}
+.legend .sw.est{border-top:3px dashed var(--hi)}
+.legend .sw.pin{width:11px;height:11px;border-radius:50%;border:0;background:var(--hi)}
+
+/* svg marker */
+.core{fill:var(--go);stroke:#fff;stroke-width:3}
+.core.lost{fill:var(--hi)}
+.pulse{fill:rgba(31,143,85,.22);animation:pr 2s infinite ease-out}
+.pulse.lost{fill:rgba(226,100,15,.25)}
+@keyframes pr{0%{r:8px;opacity:.85}100%{r:26px;opacity:0}}
+.vlabel{font-family:var(--mono);font-size:11px;fill:#fff}
+.vlabelbg{fill:var(--ink)}
+
+/* roster */
+.roster{border-left:1px solid var(--line);background:var(--surface)}
+.roster-head{padding:12px 15px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);display:flex;justify-content:space-between}
+.tech{padding:13px 15px;border-bottom:1px solid var(--line)}
+.tech.sel{background:var(--hi-tint);box-shadow:inset 3px 0 0 var(--hi)}
+.tech-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tech-name{font-family:var(--disp);font-weight:600;font-size:.94rem}
+.st{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px;border:1px solid}
+.st-en{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
+.st-idle{color:var(--med);background:var(--med-tint);border-color:#eed6ad}
+.st-off{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.tech-meta{display:flex;gap:16px;margin-top:8px}
+.tech-meta div{font-size:.72rem;color:var(--slate)}
+.tech-meta b{display:block;font-family:var(--disp);font-size:1rem;color:var(--ink);font-weight:600}
+.job-ref{font-family:var(--mono);font-size:.64rem;color:var(--faint);margin-top:7px}
+
+/* ===== phone ===== */
+.phonewrap{display:flex;justify-content:center;padding:8px 0}
+.phone{width:312px;background:#0e1116;border-radius:36px;padding:12px;box-shadow:0 18px 54px rgba(27,31,39,.30)}
+.phone-screen{background:var(--paper);border-radius:26px;overflow:hidden;position:relative;min-height:600px}
+.notch{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:100px;height:18px;background:#0e1116;border-radius:0 0 14px 14px;z-index:10}
+.app-bar{background:var(--surface);border-bottom:1px solid var(--line);padding:28px 16px 12px;display:flex;align-items:center;gap:9px}
+.app-bar .pin{width:18px;height:18px}
+.app-bar b{font-family:var(--disp);font-size:.9rem}
+.app-bar small{font-family:var(--mono);font-size:.56rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;display:block}
+.app-body{padding:18px 16px 22px}
+.statusbig{text-align:center;padding:10px 0 4px}
+.ring2{width:104px;height:104px;border-radius:50%;margin:0 auto 12px;border:5px solid var(--go-tint);display:flex;align-items:center;justify-content:center;position:relative}
+.ring2.spin::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:5px solid transparent;border-top-color:var(--go);animation:spin 2.2s linear infinite}
+.ring2.lost{border-color:var(--caution-tint)} .ring2.lost.spin::after{border-top-color:var(--caution)}
+.ring2.idle{border-color:var(--line)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring2 .ico{width:40px;height:40px;color:var(--go)} .ring2.lost .ico{color:var(--caution)} .ring2.idle .ico{color:var(--faint)}
+.statusbig h3{font-family:var(--disp);margin:0;font-size:1.12rem}
+.statusbig p{margin:3px 0 0;font-size:.8rem;color:var(--slate);font-family:var(--mono)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.stat-card .k{font-family:var(--mono);font-size:.56rem;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.stat-card .v{font-family:var(--disp);font-weight:600;font-size:1.18rem;margin-top:3px}
+.stat-card .v small{font-size:.68rem;color:var(--slate);font-weight:400}
+.queue{display:flex;align-items:center;gap:8px;background:var(--med-tint);border:1px solid #eed6ad;border-radius:10px;padding:9px 12px;font-size:.75rem;color:#7a5a12;margin-bottom:14px}
+.queue.hide{display:none}
+.queue .qdot{width:8px;height:8px;border-radius:50%;background:var(--med);animation:blink 1s infinite}
+.pbtn{width:100%;border:0;border-radius:13px;padding:14px;font-family:var(--disp);font-weight:600;font-size:1rem;cursor:pointer}
+.pbtn.start{background:var(--go);color:#fff}.pbtn.stop{background:var(--caution);color:#fff}
+.tinynote{font-size:.7rem;color:var(--faint);text-align:center;margin-top:10px}
+
+.hint{font-family:var(--mono);font-size:.72rem;color:var(--faint);margin:14px 2px 0}
+.disclaim{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-top:8px}
+
+@media (max-width:920px){.console{grid-template-columns:1fr}.roster{border-left:0;border-top:1px solid var(--line)}.topbar-inner{flex-wrap:wrap;height:auto;padding-top:10px;padding-bottom:10px}}
+</style></head><body>
+
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="#"><svg class="pin" viewBox="0 0 24 24" fill="#e2640f"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>
+  <span style="line-height:1.1"><b>McCarthy Tyre Services</b><span>Technician GPS Tracking · prototype</span></span></a>
+  <div class="tabs"><button id="tab-d" class="on">Dispatch console</button><button id="tab-t">Technician phone</button></div>
+</div></header>
+
+<div class="controls"><div class="controls-inner">
+  <span class="lbl">Simulator</span>
+  <button class="ctl go" id="btnStart">▶ Start trip</button>
+  <button class="ctl warn" id="btnGap" disabled>⚠ Simulate signal loss</button>
+  <button class="ctl" id="btnReset">↺ Reset</button>
+  <span class="lbl" style="margin-left:auto">Speed</span>
+  <button class="ctl" id="btnSpeed">1×</button>
+</div></div>
+
+<main>
+  <!-- ============ DISPATCH ============ -->
+  <section class="view on" id="view-d">
+    <div class="console">
+      <div class="console-head">
+        <div class="console-title">Dispatch — Live View <span class="live" id="liveBadge"><span class="dot"></span><span id="liveText">Idle</span></span></div>
+        <div class="clock" id="clock">09:00:00</div>
+      </div>
+      <div class="mapwrap">
+        <svg id="map" viewBox="0 0 820 470" preserveAspectRatio="none" aria-label="Live map">
+          <rect width="820" height="470" fill="#e8ecf0"/>
+          <path d="M0,360 C140,330 240,400 360,380 C500,358 600,420 820,392 L820,470 L0,470 Z" fill="#cfe3ef"/>
+          <ellipse cx="660" cy="120" rx="120" ry="74" fill="#dcebd6"/>
+          <g stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round">
+            <path d="M-10,150 H830"/><path d="M-10,250 H830"/><path d="M120,-10 V480"/>
+            <path d="M300,-10 V480"/><path d="M520,-10 V480"/><path d="M700,-10 V480"/>
+          </g>
+          <path d="M-10,300 C160,300 260,180 440,180 C580,180 660,300 830,300" stroke="#ffe3c4" stroke-width="13" fill="none"/>
+          <text x="160" y="293" font-family="IBM Plex Mono" font-size="12" fill="#b88a4f">I-95</text>
+
+          <!-- hidden master route used for geometry -->
+          <path id="route" d="M120,400 L120,300 L300,300 L300,200 L440,200 L440,120 L600,120 L600,210" fill="none" stroke="none"/>
+          <!-- visible trails (built by JS) -->
+          <path id="trailMeasA" fill="none" stroke="#1f8f55" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path id="trailEst"  fill="none" stroke="#e2640f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 9"/>
+          <path id="trailMeasB" fill="none" stroke="#1f8f55" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- destination pin -->
+          <g transform="translate(600,210)"><path d="M0,0 C-8,0 -13,5 -13,12 C-13,23 0,34 0,34 C0,34 13,23 13,12 C13,5 8,0 0,0 Z" transform="translate(0,-30)" fill="#e2640f"/><circle cx="0" cy="-18" r="4" fill="#fff"/></g>
+          <text x="610" y="216" font-family="IBM Plex Mono" font-size="11" fill="#b84e0a">Job #07885993</text>
+
+          <!-- vehicle marker -->
+          <g id="veh" style="display:none">
+            <circle class="pulse" id="vpulse" cx="0" cy="0"/>
+            <circle class="core" id="vcore" cx="0" cy="0" r="8"/>
+            <rect class="vlabelbg" id="vlblbg" rx="5" height="17" y="-26" x="14" width="120"/>
+            <text class="vlabel" id="vlbl" x="20" y="-13">Maya R.</text>
+          </g>
+        </svg>
+        <div class="legend">
+          <div><span class="sw"></span> Measured track</div>
+          <div><span class="sw est"></span> Estimated (gap-fill)</div>
+          <div><span class="sw pin"></span> Job destination</div>
+        </div>
+        <div class="maptag">Google Maps in production · animated mock here</div>
+      </div>
+      <div class="roster">
+        <div class="roster-head"><span>Technicians (3)</span><span>Distance · ETA</span></div>
+        <div class="tech sel">
+          <div class="tech-top"><span class="tech-name">Maya Rodriguez</span><span class="st st-idle" id="mStatus">Idle</span></div>
+          <div class="tech-meta"><div>Distance<b id="mDist">0.0 mi</b></div><div>ETA<b id="mEta">—</b></div><div>Speed<b id="mSpeed">0</b></div></div>
+          <div class="job-ref" id="mJob">Job #07885993 · Trailer tyre · I-95 NJ</div>
+        </div>
+        <div class="tech">
+          <div class="tech-top"><span class="tech-name">Dale Kemp</span><span class="st st-idle">Idle / depot</span></div>
+          <div class="tech-meta"><div>Distance<b>0.0 mi</b></div><div>ETA<b>—</b></div><div>Status<b>Available</b></div></div>
+          <div class="job-ref">No active job · nearest to Exit 12</div>
+        </div>
+        <div class="tech">
+          <div class="tech-top"><span class="tech-name">Priya Shah</span><span class="st st-en">En route</span></div>
+          <div class="tech-meta"><div>Distance<b>22.7 mi</b></div><div>ETA<b>~9 min</b></div><div>Speed<b>41</b></div></div>
+          <div class="job-ref">Job #07886104 · Wheel change</div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">Press <b>▶ Start trip</b> above. Watch Maya move toward the job, distance tick up, ETA count down. Hit <b>⚠ Simulate signal loss</b> mid-route to see the dashed estimate fill the gap, then auto-recover.</p>
+  </section>
+
+  <!-- ============ TECHNICIAN ============ -->
+  <section class="view" id="view-t">
+    <div class="phonewrap"><div class="phone"><div class="phone-screen"><div class="notch"></div>
+      <div class="app-bar">
+        <svg class="pin" viewBox="0 0 24 24" fill="#e2640f"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>
+        <div><b>McCarthy Tyre</b><small>Technician tracker</small></div>
+      </div>
+      <div class="app-body">
+        <div class="statusbig">
+          <div class="ring2 idle" id="pRing"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6"/></svg></div>
+          <h3 id="pStatus">Ready</h3>
+          <p id="pSub">Tap start when you leave for the job</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="k">Distance</div><div class="v"><span id="pDist">0.0</span> <small>mi</small></div></div>
+          <div class="stat-card"><div class="k">Last sent</div><div class="v"><span id="pSent">—</span></div></div>
+          <div class="stat-card"><div class="k">Accuracy</div><div class="v"><span id="pAcc">—</span> <small>m</small></div></div>
+          <div class="stat-card"><div class="k">Speed</div><div class="v"><span id="pSpd">0</span> <small>mph</small></div></div>
+        </div>
+        <div class="queue hide" id="pQueue"><span class="qdot"></span> <span id="pQtext">Offline — 0 readings queued</span></div>
+        <button class="pbtn start" id="pBtn">▶ Start trip</button>
+        <p class="tinynote">Keep this screen on · location shared while on shift</p>
+      </div>
+    </div></div></div>
+    <p class="hint" style="text-align:center">This mirrors the same live trip — switch back to <b>Dispatch console</b> to see both update together.</p>
+  </section>
+
+  <p class="disclaim">Interactive prototype · McCarthy Tyre Services · figures illustrative · the map is an animated placeholder (production uses Google Maps).</p>
+</main>
+
+<script>
+(function(){
+  const route = document.getElementById('route');
+  const LEN = route.getTotalLength();
+  const N = 600;                       // samples along route
+  const pts = [];
+  for(let i=0;i<=N;i++){ const p = route.getPointAtLength(LEN*i/N); pts.push({x:p.x,y:p.y}); }
+  const TOTAL_MILES = 14.2;            // map whole route to this
+  const milesAt = i => (i/N)*TOTAL_MILES;
+
+  // ---- state ----
+  let prog=0, running=false, speed=1, raf=null, lastT=0;
+  let gapStart=-1, gapEnd=-1;          // sample indices of the estimated gap
+  let queued=0, sentAgo=0, simSeconds=0;
+  const BASE=0.9;                      // samples advanced per ~16ms at 1x
+
+  // ---- elements ----
+  const veh=document.getElementById('veh'), vcore=document.getElementById('vcore'),
+        vpulse=document.getElementById('vpulse'), vlbl=document.getElementById('vlbl'), vlblbg=document.getElementById('vlblbg');
+  const trailA=document.getElementById('trailMeasA'), trailEst=document.getElementById('trailEst'), trailB=document.getElementById('trailMeasB');
+  const liveBadge=document.getElementById('liveBadge'), liveText=document.getElementById('liveText'), clock=document.getElementById('clock');
+  const mStatus=document.getElementById('mStatus'), mDist=document.getElementById('mDist'), mEta=document.getElementById('mEta'),
+        mSpeed=document.getElementById('mSpeed'), mJob=document.getElementById('mJob');
+  const btnStart=document.getElementById('btnStart'), btnGap=document.getElementById('btnGap'), btnReset=document.getElementById('btnReset'), btnSpeed=document.getElementById('btnSpeed');
+  // phone
+  const pRing=document.getElementById('pRing'), pStatus=document.getElementById('pStatus'), pSub=document.getElementById('pSub'),
+        pDist=document.getElementById('pDist'), pSent=document.getElementById('pSent'), pAcc=document.getElementById('pAcc'),
+        pSpd=document.getElementById('pSpd'), pQueue=document.getElementById('pQueue'), pQtext=document.getElementById('pQtext'), pBtn=document.getElementById('pBtn');
+
+  const idx = i => pts[Math.max(0,Math.min(N,Math.round(i)))];
+  const dpath = (a,b)=>{ if(b<a) return ''; let d='M'+idx(a).x+' '+idx(a).y; for(let i=Math.ceil(a)+1;i<=b;i++) d+=' L'+idx(i).x+' '+idx(i).y; return d; };
+
+  function inGap(i){ return gapStart>=0 && i>gapStart && i<gapEnd; }
+
+  function buildTrails(){
+    const p = prog;
+    if(gapStart<0){                                   // no gap yet
+      trailA.setAttribute('d', dpath(0,p)); trailEst.setAttribute('d',''); trailB.setAttribute('d','');
+    } else {
+      trailA.setAttribute('d', dpath(0,gapStart));
+      trailEst.setAttribute('d', dpath(gapStart, Math.min(p,gapEnd)));
+      trailB.setAttribute('d', p>gapEnd ? dpath(gapEnd,p) : '');
+    }
+  }
+
+  function fmtClock(){ const t=Math.floor(simSeconds); const h=9+Math.floor(t/3600); const m=Math.floor((t%3600)/60); const s=t%60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+
+  function render(){
+    const p = idx(prog);
+    veh.style.display='block';
+    vcore.setAttribute('cx',p.x); vcore.setAttribute('cy',p.y);
+    vpulse.setAttribute('cx',p.x); vpulse.setAttribute('cy',p.y);
+    vlbl.setAttribute('x',p.x+20); vlbl.setAttribute('y',p.y-13);
+    vlblbg.setAttribute('x',p.x+14); vlblbg.setAttribute('y',p.y-26);
+    buildTrails();
+
+    const lost = inGap(prog);
+    vcore.classList.toggle('lost',lost); vpulse.classList.toggle('lost',lost);
+    const arrived = prog>=N;
+    const spd = arrived?0:(lost?0:Math.round(34+8*Math.sin(prog/40)));
+    const dist = milesAt(prog).toFixed(1);
+    const remainMin = Math.max(0,Math.round((N-prog)/N*22));
+
+    // labels
+    vlbl.textContent = arrived? 'Maya R. · arrived' : (lost? 'Maya R. · signal lost' : 'Maya R. · '+spd+' mph');
+    vlblbg.setAttribute('width', (vlbl.textContent.length*6.6+12));
+
+    // live badge
+    if(arrived){ liveBadge.className='live'; liveText.textContent='Arrived on-site'; }
+    else if(lost){ liveBadge.className='live lost'; liveText.textContent='Signal lost · estimating'; }
+    else if(running){ liveBadge.className='live'; liveText.textContent='Live · updating every 4s'; }
+    else { liveBadge.className='live'; liveText.textContent='Paused'; }
+
+    // roster
+    mDist.textContent = dist+' mi';
+    mSpeed.textContent = spd;
+    mEta.textContent = arrived? 'on-site' : remainMin+' min';
+    mStatus.textContent = arrived?'Arrived':(lost?'Signal lost':(running?'En route':'Paused'));
+    mStatus.className = 'st '+(arrived?'st-en':(lost?'st-off':(running?'st-en':'st-idle')));
+    mJob.textContent = lost? 'Job #07885993 · estimating position…' : 'Job #07885993 · Trailer tyre · I-95 NJ';
+
+    clock.textContent = fmtClock();
+
+    // ---- phone ----
+    pDist.textContent = dist; pSpd.textContent = spd;
+    if(arrived){
+      pRing.className='ring2'; pStatus.textContent='Arrived on-site'; pSub.textContent='Within 40 m of the job';
+      pAcc.textContent='5'; pSent.textContent='now'; pQueue.classList.add('hide');
+      pBtn.textContent='■ End trip'; pBtn.className='pbtn stop';
+    } else if(!running){
+      pRing.className='ring2 idle';
+    } else if(lost){
+      pRing.className='ring2 lost spin'; pStatus.textContent='Offline — still recording';
+      pSub.textContent='Job #07885993'; pAcc.textContent='—';
+      queued++; pSent.textContent = (queued)+' queued'; pAcc.textContent='—';
+      pQueue.classList.remove('hide'); pQtext.textContent='Offline — '+queued+' readings queued, will send on reconnect';
+    } else {
+      pRing.className='ring2 spin'; pStatus.textContent='Tracking active'; pSub.textContent='Job #07885993';
+      pAcc.textContent=(4+Math.round(4*Math.abs(Math.sin(prog/30))));
+      if(queued>0){ pSent.textContent='just synced'; queued=0; } else { pSent.textContent=Math.round(sentAgo)+'s ago'; }
+      pQueue.classList.add('hide');
+    }
+  }
+
+  function tick(t){
+    if(!lastT) lastT=t; const dt=(t-lastT)/16.67; lastT=t;
+    if(running && prog<N){
+      prog += BASE*speed*dt;
+      simSeconds += (dt*16.67/1000)*60*speed;     // sped-up clock
+      sentAgo += dt*0.25;  if(sentAgo>4) sentAgo=0;
+      if(prog>=N){ prog=N; running=false; btnStart.textContent='▶ Start trip'; btnGap.disabled=true; }
+      if(gapStart>=0 && prog>=gapEnd && trailB) { /* recovered */ }
+    }
+    render();
+    raf=requestAnimationFrame(tick);
+  }
+
+  // ---- controls ----
+  btnStart.addEventListener('click',()=>{
+    if(prog>=N) return;
+    running=!running;
+    btnStart.textContent = running?'⏸ Pause':'▶ Start trip';
+    btnGap.disabled = !running || gapStart>=0;
+    if(running){ pBtn.textContent='■ End trip'; pBtn.className='pbtn stop'; }
+  });
+  btnGap.addEventListener('click',()=>{
+    if(gapStart>=0) return;
+    gapStart=prog; gapEnd=Math.min(N, prog + N*0.20);   // ~5-min blackout span
+    btnGap.disabled=true; queued=0;
+  });
+  btnReset.addEventListener('click',()=>{
+    prog=0; running=false; gapStart=-1; gapEnd=-1; queued=0; sentAgo=0; simSeconds=0;
+    btnStart.textContent='▶ Start trip'; btnGap.disabled=true;
+    pBtn.textContent='▶ Start trip'; pBtn.className='pbtn start';
+    trailA.setAttribute('d','');trailEst.setAttribute('d','');trailB.setAttribute('d','');
+    render();
+  });
+  btnSpeed.addEventListener('click',()=>{ speed = speed===1?2:(speed===2?4:1); btnSpeed.textContent=speed+'×'; });
+  pBtn.addEventListener('click',()=> btnStart.click());
+
+  // tabs
+  const tabD=document.getElementById('tab-d'), tabT=document.getElementById('tab-t'), viewD=document.getElementById('view-d'), viewT=document.getElementById('view-t');
+  tabD.addEventListener('click',()=>{tabD.classList.add('on');tabT.classList.remove('on');viewD.classList.add('on');viewT.classList.remove('on');});
+  tabT.addEventListener('click',()=>{tabT.classList.add('on');tabD.classList.remove('on');viewT.classList.add('on');viewD.classList.remove('on');});
+
+  render();
+  raf=requestAnimationFrame(tick);
+})();
+</script>
+</body></html>

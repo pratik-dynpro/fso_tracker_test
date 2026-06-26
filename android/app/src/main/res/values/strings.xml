@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">McCarthy FSO</string>
+    <string name="title_activity_main">McCarthy FSO</string>
+    <string name="package_name">com.mccarthy.fso</string>
+    <string name="custom_url_scheme">com.mccarthy.fso</string>
+    <string name="capacitor_background_geolocation_notification_channel_name">Trip tracking</string>
+</resources>

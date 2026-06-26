@@ -1,0 +1,36 @@
+.trip-wrap{max-width:1180px;margin:0 auto;padding:18px 18px 60px}
+.trip-back{font-family:var(--mono);font-size:.74rem;text-decoration:none;color:var(--slate);
+  display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
+.trip-back:hover{color:var(--hi-dark)}
+.trip-grid{display:grid;grid-template-columns:1fr 330px;gap:0;border:1px solid var(--line-strong);
+  border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 6px 30px rgba(27,31,39,.08)}
+.trip-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 18px;border-bottom:1px solid var(--line)}
+.trip-head h2{margin:0;font-size:1.05rem}
+.trip-head .st{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;
+  padding:2px 8px;border-radius:20px;border:1px solid}
+
+#trip-map{width:100%;height:540px;background:#e8ecf0;z-index:0}
+.no-track{height:540px;display:flex;align-items:center;justify-content:center;text-align:center;
+  color:var(--slate);padding:30px;background:#e8ecf0}
+
+.trip-side{border-left:1px solid var(--line);padding:18px;max-height:593px;overflow-y:auto}
+.kv{padding:11px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv .k{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.kv .v{font-size:1rem;font-weight:600;margin-top:3px}
+.kv .v.big{font-size:1.6rem}
+.kv .v small{font-size:.8rem;font-weight:400;color:var(--slate)}
+.dist-split{display:flex;gap:14px;margin-top:6px}
+.dist-split div{flex:1}
+.dist-split .sub{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;color:var(--faint)}
+.dist-split b{font-size:1.05rem}
+.dist-split .est b{color:var(--hi-dark)}
+.veh-label{background:var(--ink);color:#fff;border:0;border-radius:5px;padding:2px 7px;
+  font-family:var(--mono);font-size:.66rem;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.veh-label::before{display:none}
+.veh-label.start{background:#2b6cb0}
+.veh-label.end{background:#1b1f27}
+.veh-label.job{background:var(--hi)}
+.loading{padding:60px;text-align:center;color:var(--slate)}
+@media(max-width:920px){.trip-grid{grid-template-columns:1fr}.trip-side{border-left:0;border-top:1px solid var(--line);max-height:none}#trip-map,.no-track{height:380px}}

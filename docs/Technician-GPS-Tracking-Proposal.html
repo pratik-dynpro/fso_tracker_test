@@ -1,0 +1,234 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Technician GPS Tracking — Proposal</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+:root{
+  --ink:#1b1f27; --slate:#5c6675; --faint:#8a93a1;
+  --paper:#eef1f5; --surface:#ffffff;
+  --line:#dfe3ea; --line-strong:#c8cdd6;
+  --hi:#e2640f; --hi-dark:#b84e0a; --hi-tint:#fdf0e6;
+  --go:#1f8f55; --go-tint:#e7f4ec;
+  --caution:#cf4040; --caution-tint:#fbe9e9;
+  --med:#c77d11; --med-tint:#fbf1e0;
+  --tint:#f4f6f9;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --disp:"Space Grotesk","IBM Plex Sans",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--body);font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+/* ---------- top bar ---------- */
+.topbar{position:sticky;top:0;z-index:30;background:var(--surface);
+  border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1040px;margin:0 auto;padding:0 24px;
+  height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand .pin{width:20px;height:20px;flex:none}
+.brand b{font-family:var(--disp);font-weight:700;font-size:.98rem;letter-spacing:-.01em}
+.brand span{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;
+  letter-spacing:.14em;color:var(--faint);display:block;margin-top:1px}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--slate);text-decoration:none;padding:7px 11px;border-radius:7px;
+  border:1px solid transparent;transition:background .15s,color .15s,border-color .15s}
+.nav a:hover{background:var(--tint);color:var(--ink)}
+.nav a.active{color:var(--hi-dark);border-color:var(--hi);background:var(--hi-tint)}
+
+/* ---------- meta strip ---------- */
+.metastrip{background:var(--ink);color:#cfd5de}
+.metastrip-inner{max-width:1040px;margin:0 auto;padding:9px 24px;
+  display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.04em}
+.metastrip b{color:#fff;font-weight:500}
+.metastrip .sep{color:#4a5360}
+
+/* ---------- layout ---------- */
+main{max-width:860px;margin:0 auto;padding:46px 24px 90px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;font-weight:500;
+  text-transform:uppercase;letter-spacing:.16em;color:var(--hi-dark);
+  margin:0 0 10px;display:flex;align-items:center;gap:9px}
+.eyebrow::before{content:"";width:9px;height:9px;background:var(--hi);
+  display:inline-block;transform:rotate(45deg);flex:none}
+h1{font-family:var(--disp);font-weight:700;font-size:2.5rem;line-height:1.08;
+  letter-spacing:-.02em;margin:0 0 14px}
+h2{font-family:var(--disp);font-weight:600;font-size:1.46rem;line-height:1.18;
+  letter-spacing:-.01em;margin:0 0 14px}
+h3{font-family:var(--disp);font-weight:600;font-size:1.08rem;margin:26px 0 8px}
+p{margin:0 0 15px}
+.lead{font-size:1.16rem;line-height:1.5;color:#2c333d;margin:0 0 6px}
+a.inline{color:var(--hi-dark);text-decoration:underline;text-underline-offset:2px}
+.mono{font-family:var(--mono);font-size:.86em;background:var(--tint);
+  border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+section{margin-top:48px}
+section > p:last-child{margin-bottom:0}
+hr.div{border:0;border-top:1px solid var(--line);margin:46px 0}
+
+/* ---------- hero card on index ---------- */
+.hero-sub{color:var(--slate);font-size:1.04rem;max-width:60ch}
+
+/* ---------- relay flow ---------- */
+.relay{display:flex;align-items:stretch;gap:0;margin:8px 0 4px;flex-wrap:nowrap}
+.node{flex:1 1 0;min-width:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:16px 16px 17px;position:relative;
+  box-shadow:0 1px 0 rgba(27,31,39,.03)}
+.node-num{font-family:var(--mono);font-size:.66rem;font-weight:500;color:#fff;
+  background:var(--ink);width:22px;height:22px;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;margin-bottom:9px}
+.node h4{font-family:var(--disp);font-weight:600;font-size:.96rem;margin:0 0 4px}
+.node p{font-size:.82rem;line-height:1.42;color:var(--slate);margin:0}
+.conn{flex:0 0 30px;display:flex;align-items:center;justify-content:center;color:var(--line-strong)}
+.conn svg{width:18px;height:18px}
+
+/* ---------- callout / aside ---------- */
+.callout{background:var(--hi-tint);border:1px solid #f3cba8;border-left:4px solid var(--hi);
+  border-radius:10px;padding:17px 20px;margin:22px 0}
+.callout .tag{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.13em;color:var(--hi-dark);font-weight:500;margin:0 0 6px}
+.callout p{margin:0;color:#3a3026}
+.callout strong{color:var(--ink)}
+
+/* ---------- lifecycle ---------- */
+.lifecycle{list-style:none;margin:6px 0 0;padding:0;position:relative}
+.lifecycle::before{content:"";position:absolute;left:13px;top:12px;bottom:12px;
+  width:2px;background:var(--line)}
+.lifecycle li{position:relative;padding:0 0 16px 44px;min-height:28px}
+.lifecycle li:last-child{padding-bottom:0}
+.step-n{position:absolute;left:0;top:0;width:28px;height:28px;border-radius:8px;
+  background:var(--surface);border:1.5px solid var(--line-strong);
+  font-family:var(--mono);font-size:.74rem;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;z-index:1}
+.lifecycle li.phase2 .step-n{border-color:var(--hi);color:var(--hi-dark)}
+.lifecycle strong{display:block;font-family:var(--disp);font-weight:600;font-size:.98rem}
+.lifecycle p{font-size:.88rem;color:var(--slate);margin:2px 0 0}
+.tag-p2{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--hi-dark);background:var(--hi-tint);border:1px solid #f1c8a4;
+  border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:2px}
+
+/* ---------- tables ---------- */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px;
+  background:var(--surface);margin:8px 0 4px}
+table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:560px}
+thead th{background:var(--tint);font-family:var(--mono);font-weight:500;
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--slate);
+  text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
+tbody td{padding:12px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.rec{background:var(--hi-tint)}
+td .opt{font-family:var(--disp);font-weight:600}
+td.r-head{font-weight:600}
+.cmp tbody td:first-child{white-space:nowrap}
+
+/* ---------- pills / gauges ---------- */
+.pill{display:inline-block;font-family:var(--mono);font-size:.66rem;font-weight:500;
+  text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;
+  border:1px solid;white-space:nowrap;line-height:1.3}
+.p-go{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
+.p-no{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.p-low{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
+.p-med{color:var(--med);background:var(--med-tint);border-color:#eed6ad}
+.p-high{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.p-ink{color:var(--slate);background:var(--tint);border-color:var(--line)}
+
+/* ---------- pros / cons ---------- */
+.pc-list{list-style:none;padding:0;margin:6px 0 0}
+.pc-list li{position:relative;padding:6px 0 6px 28px;font-size:.95rem;
+  border-bottom:1px solid var(--line)}
+.pc-list li:last-child{border-bottom:0}
+.pc-list li::before{position:absolute;left:0;top:6px;font-family:var(--mono);
+  font-weight:500;width:18px;height:18px;border-radius:5px;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;line-height:1}
+.pros li::before{content:"+";color:var(--go);background:var(--go-tint)}
+.cons li::before{content:"\2013";color:var(--caution);background:var(--caution-tint)}
+.pc-list strong{color:var(--ink)}
+
+/* ---------- needs checklist ---------- */
+.needs{list-style:none;counter-reset:n;padding:0;margin:6px 0 0}
+.needs li{position:relative;padding:11px 0 11px 40px;border-bottom:1px solid var(--line)}
+.needs li:last-child{border-bottom:0}
+.needs li::before{counter-increment:n;content:counter(n,decimal-leading-zero);
+  position:absolute;left:0;top:11px;font-family:var(--mono);font-size:.72rem;
+  color:var(--hi-dark);font-weight:500}
+.needs strong{font-weight:600}
+.needs p{margin:2px 0 0;font-size:.9rem;color:var(--slate)}
+
+/* ---------- reco / verdict blocks ---------- */
+.reco{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:22px 24px;margin:8px 0 4px;border-top:3px solid var(--hi)}
+.reco .tag{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
+  letter-spacing:.13em;color:var(--hi-dark);font-weight:500;margin:0 0 8px}
+.reco h3{margin-top:0}
+.reco .oneline{font-family:var(--disp);font-size:1.12rem;font-weight:500;
+  line-height:1.4;color:var(--ink);border-left:3px solid var(--line-strong);
+  padding-left:14px;margin:16px 0 0}
+
+/* ---------- option header ---------- */
+.opthead{display:flex;align-items:flex-start;gap:20px;margin-bottom:8px}
+.optletter{flex:none;width:64px;height:64px;border-radius:14px;background:var(--ink);
+  color:#fff;font-family:var(--disp);font-weight:700;font-size:2rem;
+  display:flex;align-items:center;justify-content:center}
+.optletter.rec{background:var(--hi)}
+.verdict{display:inline-block;font-family:var(--mono);font-size:.7rem;font-weight:500;
+  text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:6px;
+  margin-top:4px}
+.v-rec{color:#fff;background:var(--hi)}
+.v-later{color:var(--ink);background:var(--tint);border:1px solid var(--line-strong)}
+.metarow{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 0}
+.metarow .chip{font-family:var(--mono);font-size:.72rem;color:var(--slate);
+  background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 11px}
+.metarow .chip b{color:var(--ink);font-weight:500}
+
+/* ---------- glossary ---------- */
+.gloss{margin:6px 0 0}
+.gloss div{padding:10px 0;border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:180px 1fr;gap:18px}
+.gloss div:last-child{border-bottom:0}
+.gloss dt{font-family:var(--disp);font-weight:600;font-size:.92rem}
+.gloss dd{margin:0;font-size:.92rem;color:var(--slate)}
+
+/* ---------- footer nav ---------- */
+.fnav{display:flex;justify-content:space-between;gap:14px;margin-top:54px;
+  padding-top:22px;border-top:1px solid var(--line);flex-wrap:wrap}
+.fnav a{font-family:var(--mono);font-size:.78rem;text-decoration:none;color:var(--slate);
+  border:1px solid var(--line);border-radius:8px;padding:10px 14px;
+  transition:border-color .15s,color .15s}
+.fnav a:hover{border-color:var(--hi);color:var(--hi-dark)}
+.fnav a span{color:var(--faint);display:block;font-size:.64rem;text-transform:uppercase;
+  letter-spacing:.1em;margin-bottom:2px}
+
+/* build-design page additions */
+main pre{font-family:var(--mono);font-size:.8rem;line-height:1.5;color:var(--ink);
+  background:var(--tint);border:1px solid var(--line);border-radius:10px;
+  padding:15px 16px;overflow-x:auto;margin:8px 0 4px;white-space:pre}
+.node.warn{border-color:#f0c9c9;background:var(--caution-tint)}
+.node.warn .node-num{background:var(--caution)}
+.lifecycle li.warn .step-n{border-color:var(--caution);color:var(--caution)}
+.pc-list.flat li::before{content:"";width:7px;height:7px;border-radius:50%;
+  background:var(--hi);top:12px;left:5px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:8px 0 4px}
+.kv{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kv h4{font-family:var(--disp);font-weight:600;font-size:.95rem;margin:0 0 5px}
+.kv p{margin:0;font-size:.9rem;color:var(--slate)}
+.tag-rec{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--hi-dark);background:var(--hi-tint);border:1px solid #f1c8a4;border-radius:4px;
+  padding:1px 6px;margin-left:6px;vertical-align:2px}
+@media (max-width:680px){.twocol{grid-template-columns:1fr}}
+
+/* focus + motion */
+a:focus-visible,th:focus-visible{outline:2px solid var(--hi);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:no-preference){
+  .reveal{animation:rise .5s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+
+/* responsive */
+@media (max-width:680px){
+  h1{font-size:2rem}
+  .relay{flex-direction:column}
+  .conn{flex-basis:auto;height:26px;transform:rotate(90deg)}
+  .gloss div{grid-template-columns:1fr;gap:2px}
+  .opthead{gap:14px}
+  .optletter{width:52px;height:52px;font-size:1.6rem}
+  .metastrip-inner{gap:14px}
+}
+</style></head><body><header class="topbar"><div class="topbar-inner"><a class="brand" href="#"><svg class="pin" viewBox="0 0 24 24" fill="#e2640f" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg><span style="line-height:1.1"><b>Technician GPS Tracking</b><span>Proposal for review</span></span></a><nav class="nav"><span style="font-family:var(--mono);font-size:.7rem;color:var(--faint);text-transform:uppercase;letter-spacing:.12em">FSO &middot; McCarthy Tyre Services</span></nav></div></header><div class="metastrip"><div class="metastrip-inner"><div>Prepared by <b>Shashikant</b></div><div class="sep">/</div><div>Date <b>24 Jun 2026</b></div><div class="sep">/</div><div>Status <b>For review</b></div><div class="sep">/</div><div>Recommended approach <b>Browser / PWA tracking</b></div></div></div><main class="reveal"><p class="eyebrow">Proposal for review</p><h1>Live GPS tracking for field technicians</h1><p class="lead">A lightweight way for dispatch to see, on a live Google Map, exactly where each technician is while a roadside job is running &mdash; that keeps working through mobile dead zones and records the distance driven per call.</p><section><p class="eyebrow">01 &mdash; Problem statement</p><h2>Once a technician leaves, we&rsquo;re blind</h2><p>Our technicians drive out to roadside breakdowns to change and repair tyres &mdash; for example service event <code class="mono">07885993</code>, a trailer tyre job off I-95 in New Jersey. From the moment a technician leaves until they phone in, dispatch has no idea where they actually are. That costs us in concrete ways:</p><ul class="pc-list cons"><li><strong>No live position or ETA</strong> &mdash; we can&rsquo;t tell a waiting customer when help will arrive.</li><li><strong>Can&rsquo;t dispatch the nearest technician</strong> &mdash; when a new call comes in, we&rsquo;re guessing who&rsquo;s closest.</li><li><strong>No confirmation of arrival or on-site time</strong> &mdash; we rely on the technician to call it in.</li><li><strong>No distance record per job</strong> &mdash; the miles driven for a call aren&rsquo;t captured automatically.</li></ul><p>We need a <strong>live map of every technician</strong> that keeps recording through poor-signal areas and <strong>measures distance for each job</strong>.</p></section><section><p class="eyebrow">02 &mdash; Solution</p><h2>Track from the technician&rsquo;s phone, show it on a map</h2><p>Add lightweight location tracking to the web app technicians <strong>already use</strong> &mdash; nothing to install, no devices to buy. The phone&rsquo;s GPS reports to our own backend, which feeds a live Google Map for dispatch. Four steps:</p><div class="relay"><div class="node"><span class="node-num">1</span><h4>Capture</h4><p>The technician&rsquo;s existing web app reads GPS in the browser &mdash; no native app, no hardware to fit.</p></div><div class="conn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><span class="node-num">2</span><h4>Send</h4><p>Readings post to our backend every ~10&ndash;15s. If offline, they queue on the phone and send on reconnect.</p></div><div class="conn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><span class="node-num">3</span><h4>Store</h4><p>A Python backend validates and stores each point, and keeps a running distance for the job.</p></div><div class="conn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="node"><span class="node-num">4</span><h4>Display</h4><p>Dispatch sees every technician as a live marker on Google Maps, updating in real time.</p></div></div><div class="callout"><p class="tag">Why dead zones don&rsquo;t break it</p><p>GPS works <strong>without a signal</strong> &mdash; the phone keeps recording even with no internet. Readings are held on the device and sent the moment the connection returns, so the trail <strong>fills in with the real positions driven</strong>. Nothing is lost during an outage.</p></div><p><strong>Distance is measured from the recorded track itself</strong>, so it&rsquo;s accurate to what the vehicle actually drove and adds no extra cost.</p></section><section><p class="eyebrow">03 &mdash; Recommendation</p><div class="reco"><p class="tag">What we should build</p><h3>Build the browser-based tracker now, hosted on Google Cloud</h3><p>It delivers live tracking quickly using the app technicians already have, at low cost. We considered two alternatives and don&rsquo;t need either today: a <strong>native mobile app</strong> would only be worth building later <em>if</em> we need tracking to continue with the phone locked in a pocket; dedicated <strong>in-vehicle GPS hardware</strong> would track the truck rather than the person and carries a per-vehicle cost.</p><p>Supporting decisions we&rsquo;ve made to keep it simple and cheap: measure <strong>total distance driven</strong> per job; keep everything in <strong>one cloud (Google)</strong> for a single bill; push live updates with a lightweight server stream; and skip any extra caching layer in version&nbsp;1.</p><p class="oneline">Build the browser tracker on Google Cloud now; revisit a native app only if we ever need tracking while the phone is locked.</p></div></section><section><p class="eyebrow">04 &mdash; Services we&rsquo;ll use</p><h2>The stack, and what it costs</h2><div class="table-wrap"><table><thead><tr><th>Service</th><th>What it does</th><th>Cost / month</th></tr></thead><tbody><tr><td class="r-head">Cloud SQL for PostgreSQL <span style="color:var(--slate)">(+ PostGIS)</span></td><td>The database &mdash; stores every location point and job, and does the distance maths</td><td><strong>~$15&ndash;45</strong></td></tr><tr><td class="r-head">Cloud Run <span style="color:var(--slate)">(Python / FastAPI)</span></td><td>The backend &mdash; receives locations, stores them, streams live updates to the map</td><td><strong>~$10&ndash;25</strong></td></tr><tr><td class="r-head">Google Maps Platform <span style="color:var(--slate)">(Maps JavaScript API)</span></td><td>The live map dispatch looks at</td><td><strong>&asymp; $0</strong> (free tier)</td></tr><tr><td class="r-head">Browser storage <span style="color:var(--slate)">(IndexedDB)</span></td><td>Holds location readings on the phone during a network outage</td><td><strong>$0</strong> (built into browsers)</td></tr><tr><td class="r-head">HTTPS / TLS</td><td>Secure connection &mdash; required before a browser will share location</td><td><strong>$0</strong> (automatic on Cloud Run)</td></tr><tr class="rec"><td class="r-head">Estimated total (small scale)</td><td>Tens of technicians, a handful of dispatchers</td><td><strong>~$30&ndash;70 / month</strong></td></tr></tbody></table></div><div class="callout"><p class="tag">Why the cost stays low</p><p>Google Maps is <strong>effectively free here</strong> because only dispatchers load a map, and moving the markers around doesn&rsquo;t add to the bill &mdash; technicians&rsquo; phones don&rsquo;t show a map at all, they just send location. We also calculate distance ourselves, so there&rsquo;s no paid mapping call for it. (Figures are representative and shift a little with region and usage; Google adjusts its pricing periodically.)</p></div></section><section><p class="eyebrow">To proceed</p><h2>What a green light needs</h2><ul class="pc-list flat"><li><strong>A Google Maps API key with billing enabled</strong>, locked to our domain (with daily caps and a budget alert).</li><li><strong>An HTTPS web address</strong> for the technician page &mdash; provided automatically by Cloud Run.</li><li><strong>Sign-off on tracking technicians</strong> (HR / legal), including whether it&rsquo;s on-shift only.</li><li>Then engineering builds the database, the backend, and the small in-browser tracker &mdash; which <strong>drops into our existing app regardless of how it&rsquo;s built</strong> (about 150 lines of standard code), so nothing has to be rewritten.</li></ul></section><div class="fnav"><span></span><span style="font-family:var(--mono);font-size:.72rem;color:var(--faint)">FSO &middot; Technician GPS Tracking &middot; 24 Jun 2026</span></div></main></body></html>

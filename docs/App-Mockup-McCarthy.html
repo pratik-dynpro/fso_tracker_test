@@ -1,0 +1,364 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Technician GPS Tracking — App Mockup · McCarthy Tyre Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b1f27; --slate:#5c6675; --faint:#8a93a1;
+  --paper:#eef1f5; --surface:#ffffff;
+  --line:#dfe3ea; --line-strong:#c8cdd6;
+  --hi:#e2640f; --hi-dark:#b84e0a; --hi-tint:#fdf0e6;
+  --go:#1f8f55; --go-tint:#e7f4ec;
+  --caution:#cf4040; --caution-tint:#fbe9e9;
+  --med:#c77d11; --med-tint:#fbf1e0;
+  --tint:#f4f6f9;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --disp:"Space Grotesk","IBM Plex Sans",sans-serif;
+  --map:#e8ecf0; --road:#ffffff; --road-major:#ffe3c4; --water:#cfe3ef; --park:#dcebd6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand .pin{width:20px;height:20px;flex:none}
+.brand b{font-family:var(--disp);font-weight:700;font-size:.98rem;letter-spacing:-.01em}
+.brand span{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;color:var(--faint);display:block;margin-top:1px}
+.nav span{font-family:var(--mono);font-size:.7rem;color:var(--faint);text-transform:uppercase;letter-spacing:.12em}
+
+/* meta strip */
+.metastrip{background:var(--ink);color:#cfd5de}
+.metastrip-inner{max-width:1180px;margin:0 auto;padding:9px 24px;display:flex;gap:26px;flex-wrap:wrap;font-family:var(--mono);font-size:.7rem;letter-spacing:.04em}
+.metastrip b{color:#fff;font-weight:500}
+.metastrip .sep{color:#4a5360}
+
+main{max-width:1180px;margin:0 auto;padding:40px 24px 90px}
+.eyebrow{font-family:var(--mono);font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.16em;color:var(--hi-dark);margin:0 0 10px;display:flex;align-items:center;gap:9px}
+.eyebrow::before{content:"";width:9px;height:9px;background:var(--hi);display:inline-block;transform:rotate(45deg);flex:none}
+h1{font-family:var(--disp);font-weight:700;font-size:2.2rem;line-height:1.1;letter-spacing:-.02em;margin:0 0 12px}
+h2{font-family:var(--disp);font-weight:600;font-size:1.4rem;margin:0 0 14px}
+.lead{font-size:1.1rem;color:#2c333d;max-width:70ch;margin:0 0 6px}
+section{margin-top:54px}
+
+/* ===== dispatch console ===== */
+.console{display:grid;grid-template-columns:1fr 320px;gap:0;border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 6px 30px rgba(27,31,39,.08)}
+.console-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface)}
+.console-title{font-family:var(--disp);font-weight:600;font-size:1rem;display:flex;align-items:center;gap:10px}
+.live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--go);background:var(--go-tint);border:1px solid #bfe2cc;padding:3px 9px;border-radius:20px}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--go);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.console-tools{display:flex;gap:8px;font-family:var(--mono);font-size:.7rem}
+.console-tools .tool{border:1px solid var(--line);border-radius:7px;padding:5px 10px;color:var(--slate);background:var(--surface)}
+
+/* map */
+.mapwrap{position:relative;min-height:460px;background:var(--map)}
+.mapwrap svg{display:block;width:100%;height:100%;position:absolute;inset:0}
+.maptag{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:.62rem;color:var(--slate);background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+.legend{position:absolute;right:14px;top:14px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.74rem;min-width:172px}
+.legend div{display:flex;align-items:center;gap:8px;padding:3px 0;color:var(--slate)}
+.legend .sw{width:20px;height:0;border-top:3px solid var(--go);flex:none}
+.legend .sw.est{border-top:3px dashed var(--hi)}
+.legend .sw.pin{width:11px;height:11px;border-radius:50%;border:0;background:var(--hi)}
+.legend .sw.pin2{width:11px;height:11px;border-radius:50%;border:0;background:var(--ink)}
+
+/* live marker */
+.veh{position:absolute;transform:translate(-50%,-50%);z-index:5}
+.veh .ring{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(31,143,85,.22);animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.8);opacity:0}}
+.veh .core{position:relative;width:16px;height:16px;border-radius:50%;background:var(--go);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.veh .lbl{position:absolute;left:18px;top:-4px;white-space:nowrap;font-family:var(--mono);font-size:.66rem;background:var(--ink);color:#fff;padding:2px 7px;border-radius:5px}
+.veh.idle .core{background:var(--med)} .veh.idle .ring{background:rgba(199,125,17,.2)}
+
+/* job destination pin */
+.jobpin{position:absolute;transform:translate(-50%,-100%);z-index:4;text-align:center}
+.jobpin svg{width:30px;height:30px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.jobpin .lbl{font-family:var(--mono);font-size:.62rem;background:var(--hi);color:#fff;padding:2px 7px;border-radius:5px;display:inline-block;margin-top:-4px}
+
+/* roster panel */
+.roster{border-left:1px solid var(--line);display:flex;flex-direction:column;background:var(--surface)}
+.roster-head{padding:13px 16px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);display:flex;justify-content:space-between}
+.tech{padding:14px 16px;border-bottom:1px solid var(--line);cursor:default}
+.tech.sel{background:var(--hi-tint);box-shadow:inset 3px 0 0 var(--hi)}
+.tech-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tech-name{font-family:var(--disp);font-weight:600;font-size:.96rem}
+.st{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px;border:1px solid}
+.st-en{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
+.st-idle{color:var(--med);background:var(--med-tint);border-color:#eed6ad}
+.st-off{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.tech-meta{display:flex;gap:16px;margin-top:8px}
+.tech-meta div{font-size:.74rem;color:var(--slate)}
+.tech-meta b{display:block;font-family:var(--disp);font-size:1rem;color:var(--ink);font-weight:600}
+.job-ref{font-family:var(--mono);font-size:.66rem;color:var(--faint);margin-top:7px}
+
+/* phone mockup */
+.phonerow{display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:start}
+.phone{width:300px;background:#0e1116;border-radius:34px;padding:12px;box-shadow:0 16px 50px rgba(27,31,39,.28);border:1px solid #000}
+.phone-screen{background:var(--paper);border-radius:24px;overflow:hidden;position:relative}
+.notch{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:96px;height:18px;background:#0e1116;border-radius:0 0 14px 14px;z-index:10}
+.app-bar{background:var(--surface);border-bottom:1px solid var(--line);padding:26px 16px 12px;display:flex;align-items:center;gap:9px}
+.app-bar .pin{width:18px;height:18px}
+.app-bar b{font-family:var(--disp);font-size:.9rem}
+.app-bar span{font-family:var(--mono);font-size:.58rem;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;display:block}
+.app-body{padding:18px 16px 22px}
+.statusbig{text-align:center;padding:14px 0 6px}
+.statusbig .ring2{width:96px;height:96px;border-radius:50%;margin:0 auto 12px;border:4px solid var(--go-tint);display:flex;align-items:center;justify-content:center;position:relative}
+.statusbig .ring2::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:4px solid transparent;border-top-color:var(--go);animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.statusbig .ico{width:38px;height:38px;color:var(--go)}
+.statusbig h3{font-family:var(--disp);margin:0;font-size:1.1rem}
+.statusbig p{margin:2px 0 0;font-size:.8rem;color:var(--slate);font-family:var(--mono)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat-card .k{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.stat-card .v{font-family:var(--disp);font-weight:600;font-size:1.2rem;margin-top:3px}
+.stat-card .v small{font-size:.7rem;color:var(--slate);font-weight:400}
+.queue{display:flex;align-items:center;gap:8px;background:var(--med-tint);border:1px solid #eed6ad;border-radius:10px;padding:9px 12px;font-size:.76rem;color:#7a5a12;margin-bottom:16px}
+.queue .qdot{width:8px;height:8px;border-radius:50%;background:var(--med)}
+.btn-stop{width:100%;background:var(--caution);color:#fff;border:0;border-radius:13px;padding:14px;font-family:var(--disp);font-weight:600;font-size:1rem}
+.btn-start{width:100%;background:var(--go);color:#fff;border:0;border-radius:13px;padding:14px;font-family:var(--disp);font-weight:600;font-size:1rem}
+.tinynote{font-size:.72rem;color:var(--faint);text-align:center;margin-top:10px}
+
+/* explainer cards next to phone */
+.feat{list-style:none;padding:0;margin:0}
+.feat li{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:14px}
+.feat li:last-child{border-bottom:0}
+.feat .n{flex:none;width:30px;height:30px;border-radius:9px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.feat h4{font-family:var(--disp);font-weight:600;font-size:1rem;margin:0 0 3px}
+.feat p{margin:0;font-size:.9rem;color:var(--slate)}
+
+/* trip review */
+.review{display:grid;grid-template-columns:1fr 300px;gap:0;border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;background:var(--surface)}
+.review .mapwrap{min-height:380px}
+.summary{border-left:1px solid var(--line);padding:18px 18px}
+.summary h3{font-family:var(--disp);margin:0 0 4px;font-size:1.05rem}
+.summary .ref{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-bottom:16px}
+.distbox{background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.distbox .tot{font-family:var(--disp);font-weight:700;font-size:1.8rem;line-height:1}
+.distbox .tot small{font-size:.9rem;font-weight:500;color:var(--slate)}
+.distbox .split{display:flex;gap:10px;margin-top:12px}
+.distbox .split div{flex:1;font-size:.72rem;color:var(--slate)}
+.distbox .split b{display:block;font-family:var(--disp);font-size:1rem;color:var(--ink)}
+.distbox .split .est b{color:var(--hi-dark)}
+.tl{list-style:none;padding:0;margin:0}
+.tl li{position:relative;padding:0 0 14px 22px;font-size:.84rem}
+.tl li::before{content:"";position:absolute;left:3px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--go)}
+.tl li.gap::before{background:var(--hi)}
+.tl li::after{content:"";position:absolute;left:6px;top:12px;bottom:-2px;width:2px;background:var(--line)}
+.tl li:last-child::after{display:none}
+.tl b{font-family:var(--disp);font-weight:600;display:block}
+.tl span{color:var(--slate)}
+.tl .badge{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;color:var(--hi-dark);background:var(--hi-tint);border:1px solid #f1c8a4;border-radius:4px;padding:1px 5px;margin-left:6px}
+
+.callout{background:var(--hi-tint);border:1px solid #f3cba8;border-left:4px solid var(--hi);border-radius:10px;padding:16px 20px;margin:24px 0 0}
+.callout .tag{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.13em;color:var(--hi-dark);font-weight:500;margin:0 0 6px}
+.callout p{margin:0;color:#3a3026;font-size:.92rem}
+.note{font-family:var(--mono);font-size:.72rem;color:var(--faint);margin-top:10px}
+
+.fnav{display:flex;justify-content:space-between;gap:14px;margin-top:60px;padding-top:22px;border-top:1px solid var(--line)}
+.fnav span{font-family:var(--mono);font-size:.72rem;color:var(--faint)}
+
+@media (max-width:920px){
+  .console,.review{grid-template-columns:1fr}
+  .roster,.summary{border-left:0;border-top:1px solid var(--line)}
+  .phonerow{grid-template-columns:1fr;justify-items:center}
+  .console-head{flex-wrap:wrap}
+}
+</style></head><body>
+
+<header class="topbar"><div class="topbar-inner">
+  <a class="brand" href="#"><svg class="pin" viewBox="0 0 24 24" fill="#e2640f" aria-hidden="true"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>
+  <span style="line-height:1.1"><b>Technician GPS Tracking</b><span>App mockup · look &amp; feel</span></span></a>
+  <nav class="nav"><span>FSO &middot; McCarthy Tyre Services</span></nav>
+</div></header>
+
+<div class="metastrip"><div class="metastrip-inner">
+  <div>Client <b>McCarthy Tyre Services</b></div><div class="sep">/</div>
+  <div>Prepared by <b>Shashikant</b></div><div class="sep">/</div>
+  <div>Date <b>24 Jun 2026</b></div><div class="sep">/</div>
+  <div>Type <b>UI mockup (not live)</b></div>
+</div></div>
+
+<main>
+  <p class="eyebrow">Visual mockup</p>
+  <h1>What the tracking app will look like</h1>
+  <p class="lead">A preview of the three screens for McCarthy Tyre Services: the <strong>dispatch console</strong> with a live map, the <strong>technician's mobile tracker</strong>, and the <strong>trip review</strong> showing how a signal/device gap is filled. These are static mockups to agree the look and feel &mdash; not the working build.</p>
+
+  <!-- ===================== DISPATCH CONSOLE ===================== -->
+  <section>
+    <p class="eyebrow">01 — Dispatch console</p>
+    <h2>Live map of every technician</h2>
+    <div class="console">
+      <div class="console-head">
+        <div class="console-title">Dispatch — Live View <span class="live"><span class="dot"></span>Live · updating every 4s</span></div>
+        <div class="console-tools"><span class="tool">All technicians ▾</span><span class="tool">Today</span><span class="tool">⤢ Fullscreen</span></div>
+      </div>
+
+      <!-- MAP -->
+      <div class="mapwrap">
+        <svg viewBox="0 0 800 470" preserveAspectRatio="xMidYMid slice" aria-label="Stylised map">
+          <rect width="800" height="470" fill="#e8ecf0"/>
+          <!-- water -->
+          <path d="M0,360 C120,330 220,400 340,380 C470,358 560,420 800,390 L800,470 L0,470 Z" fill="#cfe3ef"/>
+          <!-- park -->
+          <ellipse cx="640" cy="120" rx="120" ry="74" fill="#dcebd6"/>
+          <!-- minor roads -->
+          <g stroke="#ffffff" stroke-width="7" fill="none" stroke-linecap="round">
+            <path d="M-10,150 H810"/><path d="M-10,250 H810"/><path d="M120,-10 V480"/>
+            <path d="M300,-10 V480"/><path d="M520,-10 V480"/><path d="M680,-10 V480"/>
+          </g>
+          <!-- major road -->
+          <path d="M-10,300 C150,300 250,180 420,180 C560,180 640,300 810,300" stroke="#ffe3c4" stroke-width="13" fill="none" stroke-linecap="round"/>
+          <text x="150" y="293" font-family="IBM Plex Mono" font-size="12" fill="#b88a4f">I-95</text>
+
+          <!-- MEASURED route (Maya) solid green -->
+          <path d="M150,250 L300,250 L300,180 L420,180" stroke="#1f8f55" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- ESTIMATED gap segment dashed orange -->
+          <path d="M420,180 L520,180 L520,120" stroke="#e2640f" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 9"/>
+        </svg>
+
+        <!-- live vehicle markers -->
+        <div class="veh" style="left:65%;top:25.5%"><div class="ring"></div><div class="core"></div><div class="lbl">Maya R. · 38 mph</div></div>
+        <div class="veh idle" style="left:15%;top:64%"><div class="ring"></div><div class="core"></div><div class="lbl">Dale K. · idle</div></div>
+        <!-- job destination -->
+        <div class="jobpin" style="left:65%;top:23%"><svg viewBox="0 0 24 24" fill="#e2640f"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg><div class="lbl">Job #07885993</div></div>
+
+        <div class="legend">
+          <div><span class="sw"></span> Measured track</div>
+          <div><span class="sw est"></span> Estimated (gap-fill)</div>
+          <div><span class="sw pin"></span> Job destination</div>
+          <div><span class="sw pin2"></span> Technician</div>
+        </div>
+        <div class="maptag">Google Maps · map data ©2026 (mockup)</div>
+      </div>
+
+      <!-- ROSTER -->
+      <div class="roster">
+        <div class="roster-head"><span>Technicians (3)</span><span>Distance · ETA</span></div>
+        <div class="tech sel">
+          <div class="tech-top"><span class="tech-name">Maya Rodriguez</span><span class="st st-en">En route</span></div>
+          <div class="tech-meta"><div>Distance<b>14.2 mi</b></div><div>ETA<b>6 min</b></div><div>On-site<b>—</b></div></div>
+          <div class="job-ref">Job #07885993 · Trailer tyre · I-95 NJ</div>
+        </div>
+        <div class="tech">
+          <div class="tech-top"><span class="tech-name">Dale Kemp</span><span class="st st-idle">Idle / depot</span></div>
+          <div class="tech-meta"><div>Distance<b>0.0 mi</b></div><div>ETA<b>—</b></div><div>Status<b>Available</b></div></div>
+          <div class="job-ref">No active job · nearest to Exit 12</div>
+        </div>
+        <div class="tech">
+          <div class="tech-top"><span class="tech-name">Priya Shah</span><span class="st st-off">Signal lost</span></div>
+          <div class="tech-meta"><div>Distance<b>22.7 mi</b></div><div>ETA<b>~9 min</b></div><div>Last seen<b>2m ago</b></div></div>
+          <div class="job-ref">Job #07886104 · Estimating position…</div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Markers move in real time; "Signal lost" technicians show an estimated position until telemetry resumes.</p>
+  </section>
+
+  <!-- ===================== TECHNICIAN MOBILE ===================== -->
+  <section>
+    <p class="eyebrow">02 — Technician's phone</p>
+    <h2>The tracker the technician sees</h2>
+    <div class="phonerow">
+      <div class="phone"><div class="phone-screen"><div class="notch"></div>
+        <div class="app-bar">
+          <svg class="pin" viewBox="0 0 24 24" fill="#e2640f"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>
+          <div><b>McCarthy Tyre</b><span>Technician tracker</span></div>
+        </div>
+        <div class="app-body">
+          <div class="statusbig">
+            <div class="ring2"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/><circle cx="12" cy="9" r="2.6"/></svg></div>
+            <h3>Tracking active</h3>
+            <p>Job #07885993 · 14 min</p>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-card"><div class="k">Distance</div><div class="v">14.2 <small>mi</small></div></div>
+            <div class="stat-card"><div class="k">Last sent</div><div class="v">3s <small>ago</small></div></div>
+            <div class="stat-card"><div class="k">Accuracy</div><div class="v">±6 <small>m</small></div></div>
+            <div class="stat-card"><div class="k">Speed</div><div class="v">38 <small>mph</small></div></div>
+          </div>
+          <div class="queue"><span class="qdot"></span> Offline — 12 readings queued, will send on reconnect</div>
+          <button class="btn-stop">■ End trip</button>
+          <p class="tinynote">Keep this screen on · location shared while on shift</p>
+        </div>
+      </div></div></div>
+
+      <div>
+        <ul class="feat">
+          <li><span class="n">1</span><div><h4>Nothing to install</h4><p>Opens in the browser the technician already uses — no app store, no hardware.</p></div></li>
+          <li><span class="n">2</span><div><h4>One-tap start / stop</h4><p>Tap to begin a job; the phone's GPS reports automatically every 10–15 seconds.</p></div></li>
+          <li><span class="n">3</span><div><h4>Works through dead zones</h4><p>If signal drops, readings queue on the phone and send the moment the connection returns.</p></div></li>
+          <li><span class="n">4</span><div><h4>Live distance</h4><p>Miles driven for the job tick up automatically, measured from the real track.</p></div></li>
+          <li><span class="n">5</span><div><h4>Screen-awake</h4><p>The page keeps the screen on during a job to avoid losing GPS while mounted.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TRIP REVIEW / GAP FILL ===================== -->
+  <section>
+    <p class="eyebrow">03 — Trip review &amp; gap-fill</p>
+    <h2>What happens when the phone goes dark</h2>
+    <div class="review">
+      <div class="mapwrap">
+        <svg viewBox="0 0 700 400" preserveAspectRatio="xMidYMid slice">
+          <rect width="700" height="400" fill="#e8ecf0"/>
+          <ellipse cx="120" cy="300" rx="110" ry="70" fill="#dcebd6"/>
+          <g stroke="#ffffff" stroke-width="7" fill="none" stroke-linecap="round">
+            <path d="M-10,120 H710"/><path d="M-10,240 H710"/><path d="M180,-10 V410"/><path d="M420,-10 V410"/>
+          </g>
+          <path d="M-10,180 C140,180 240,90 400,90 C540,90 620,200 710,200" stroke="#ffe3c4" stroke-width="12" fill="none"/>
+          <!-- measured before gap -->
+          <path d="M80,330 L80,240 L180,240 L180,180" stroke="#1f8f55" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- estimated gap (dashed) -->
+          <path d="M180,180 L300,180 L300,90 L400,90" stroke="#e2640f" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 9"/>
+          <!-- measured after gap -->
+          <path d="M400,90 L520,90 L520,200" stroke="#1f8f55" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- start dot -->
+          <circle cx="80" cy="330" r="7" fill="#1f8f55" stroke="#fff" stroke-width="3"/>
+          <!-- gap start -->
+          <circle cx="180" cy="180" r="6" fill="#e2640f" stroke="#fff" stroke-width="3"/>
+          <!-- resume -->
+          <circle cx="400" cy="90" r="6" fill="#e2640f" stroke="#fff" stroke-width="3"/>
+          <!-- destination pin -->
+          <g transform="translate(520,200)"><path d="M0,-2 C-7,-2 -12,3 -12,10 C-12,20 0,30 0,30 C0,30 12,20 12,10 C12,3 7,-2 0,-2 Z" fill="#e2640f" transform="translate(0,-26)"/><circle cx="0" cy="-19" r="3.6" fill="#fff"/></g>
+          <text x="92" y="334" font-family="IBM Plex Mono" font-size="11" fill="#1f6e44">Start</text>
+          <text x="192" y="176" font-family="IBM Plex Mono" font-size="11" fill="#b84e0a">Signal lost</text>
+          <text x="406" y="86" font-family="IBM Plex Mono" font-size="11" fill="#b84e0a">Back online</text>
+        </svg>
+        <div class="legend">
+          <div><span class="sw"></span> Measured (real GPS)</div>
+          <div><span class="sw est"></span> Estimated (5-min gap)</div>
+          <div><span class="sw pin"></span> Destination</div>
+        </div>
+        <div class="maptag">Trip #07885993 · 24 Jun 2026</div>
+      </div>
+      <div class="summary">
+        <h3>Trip summary</h3>
+        <div class="ref">Maya Rodriguez · Job #07885993</div>
+        <div class="distbox">
+          <div class="tot">14.2 <small>mi total</small></div>
+          <div class="split">
+            <div>Measured<b>11.6 mi</b></div>
+            <div class="est">Estimated<b>2.6 mi</b></div>
+          </div>
+        </div>
+        <ul class="tl">
+          <li><b>09:02 · Trip started</b><span>Left depot, GPS reporting</span></li>
+          <li class="gap"><b>09:18 · Signal lost <span class="badge">gap</span></b><span>Phone off ~5 min · path estimated toward destination</span></li>
+          <li class="gap"><b>09:23 · Back online <span class="badge">backfilled</span></b><span>Re-routed between last-known &amp; resume point</span></li>
+          <li><b>09:29 · Arrived on-site</b><span>Within 40 m of Job #07885993</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <p class="tag">How the gap is filled</p>
+      <p>During the 5-minute blackout the phone records nothing, so the route is <strong>estimated</strong> from the last-known point toward the known job destination at road-route pace (shown dashed). The instant the phone is back online, that segment is <strong>re-estimated between the two real points</strong> and its distance is flagged <strong>estimated</strong> — never mixed with measured miles.</p>
+    </div>
+    <p class="note">Mockup only · colours and figures are illustrative. Estimated distance is kept separate so it can be excluded from any billing.</p>
+  </section>
+
+  <div class="fnav"><span>FSO · Technician GPS Tracking · McCarthy Tyre Services</span><span>Mockup v1 · 24 Jun 2026</span></div>
+</main>
+</body></html>

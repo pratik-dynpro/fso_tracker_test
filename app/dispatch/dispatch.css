@@ -1,0 +1,82 @@
+.dsp-wrap{max-width:1180px;margin:0 auto;padding:18px 18px 50px}
+.console{display:grid;grid-template-columns:1fr 320px;gap:0;border:1px solid var(--line-strong);
+  border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 6px 30px rgba(27,31,39,.08)}
+.console-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.console-title{font-weight:700;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.64rem;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--go);background:var(--go-tint);
+  border:1px solid #bfe2cc;padding:3px 9px;border-radius:20px}
+.live.off{color:var(--slate);background:var(--tint);border-color:var(--line)}
+.live .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.3s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+#map{width:100%;height:520px;background:#e8ecf0;z-index:0}
+
+/* leaflet tooltip labels */
+.veh-label{background:var(--ink);color:#fff;border:0;border-radius:5px;padding:2px 7px;
+  font-family:var(--mono);font-size:.66rem;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.veh-label::before{display:none}
+.veh-label.start{background:#2b6cb0}
+.veh-label.job{background:var(--hi)}
+.mapmsg{height:520px;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:30px;color:var(--slate);font-size:.92rem;background:#e8ecf0}
+.mapmsg code{background:#fff;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-family:var(--mono);font-size:.85em}
+
+.roster{border-left:1px solid var(--line);background:var(--surface);max-height:573px;overflow-y:auto}
+.roster-head{padding:12px 15px;border-bottom:1px solid var(--line);font-family:var(--mono);
+  font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);
+  display:flex;justify-content:space-between;position:sticky;top:0;background:var(--surface)}
+.tech{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.tech.sel{background:var(--hi-tint);box-shadow:inset 3px 0 0 var(--hi)}
+.tech-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tech-name{font-weight:700;font-size:.94rem}
+.st{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;
+  padding:2px 7px;border-radius:20px;border:1px solid}
+.st-en{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
+.st-off{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
+.tech-meta{display:flex;gap:16px;margin-top:8px}
+.tech-meta div{font-size:.72rem;color:var(--slate)}
+.tech-meta b{display:block;font-size:1rem;color:var(--ink);font-weight:700}
+.tech-meta .est b{color:var(--hi-dark)}
+.job-ref{font-family:var(--mono);font-size:.64rem;color:var(--faint);margin-top:7px}
+.empty{padding:30px 16px;text-align:center;color:var(--faint);font-size:.9rem}
+/* admin actions in roster */
+.tech-actions{display:flex;gap:8px;margin-top:11px}
+.act{font-family:var(--mono);font-size:.68rem;border-radius:7px;padding:6px 10px;cursor:pointer;border:1px solid}
+.act.end{background:var(--med-tint);border-color:#eed6ad;color:#7a5a12}
+.act.end:hover{background:#f6e7c9}
+.act.del{background:var(--caution-tint);border-color:#f0c9c9;color:var(--caution)}
+.act.del:hover{background:#f7dada}
+
+/* trip history / cleanup */
+.history{margin-top:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.hist-toggle{width:100%;text-align:left;background:var(--tint);border:0;border-bottom:1px solid var(--line);
+  padding:12px 15px;font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--slate);cursor:pointer}
+.hist-toggle:hover{color:var(--ink)}
+.hist-list{max-height:340px;overflow-y:auto}
+.hist-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:11px 15px;border-bottom:1px solid var(--line)}
+.hist-row:last-child{border-bottom:0}
+.hist-main{flex:1;text-decoration:none;color:inherit;border-radius:8px;padding:4px;margin:-4px}
+.hist-main:hover{background:var(--tint)}
+.hist-main:hover .hist-view{color:var(--hi-dark)}
+.hist-view{font-family:var(--mono);font-size:.6rem;color:var(--faint);margin-left:auto}
+.hist-top{display:flex;align-items:center;gap:9px}
+.hist-top b{font-size:.92rem}
+.hist-meta{font-family:var(--mono);font-size:.66rem;color:var(--faint);margin-top:3px}
+.st-ended{color:var(--slate);background:var(--tint);border-color:var(--line-strong)}
+
+/* password gate */
+.gate{max-width:420px;margin:0 auto;padding:70px 22px}
+.gate-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
+.gate-card h2{margin:0 0 4px;font-size:1.25rem}
+.gate-card p{margin:0 0 16px;color:var(--slate);font-size:.92rem}
+.gate-card input{width:100%;border:1px solid var(--line-strong);border-radius:10px;padding:12px 13px;font-size:1rem;margin-bottom:12px}
+.gate-card input:focus{outline:2px solid var(--hi);outline-offset:1px;border-color:var(--hi)}
+.gate-card button{width:100%;background:var(--hi);color:#fff;border:0;border-radius:11px;padding:13px;font-weight:700;font-size:1rem;cursor:pointer}
+.gate-card button:hover{background:var(--hi-dark)}
+.gate-err{background:var(--caution-tint);border:1px solid #f0c9c9;color:var(--caution);border-radius:9px;padding:9px 12px;font-size:.86rem;margin-bottom:12px}
+
+@media(max-width:920px){.console{grid-template-columns:1fr}.roster{border-left:0;border-top:1px solid var(--line);max-height:none}#map,.mapmsg{height:420px}}

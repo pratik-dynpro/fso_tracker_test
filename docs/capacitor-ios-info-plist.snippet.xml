@@ -1,0 +1,15 @@
+<!--
+  Paste these keys inside the top-level <dict> in ios/App/App/Info.plist after
+  running `npx cap add ios` on a Mac. They are required for background
+  location tracking on iOS per Runbook Phase 2.
+
+  Do not duplicate keys that already exist in the generated Info.plist.
+-->
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Shows dispatch your location while you're on a job.</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Lets dispatch see your location during a job even when the screen is off.</string>
+<key>UIBackgroundModes</key>
+<array>
+  <string>location</string>
+</array>
