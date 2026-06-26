@@ -8,7 +8,7 @@
 // Capacitor build, then restore on exit so the Vercel build path is untouched.
 
 import { spawnSync } from 'node:child_process';
-import { renameSync, existsSync } from 'node:fs';
+import { renameSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = process.cwd();
@@ -45,6 +45,26 @@ process.on('SIGINT', () => { restore(); process.exit(130); });
 process.on('SIGTERM', () => { restore(); process.exit(143); });
 process.on('uncaughtException', err => { restore(); console.error(err); process.exit(1); });
 
+// Next.js does NOT auto-load files named `.env.capacitor`. Read it ourselves
+// and merge the vars into the spawn env so the static export sees them
+// (NEXT_PUBLIC_API_BASE in particular — without it the APK calls relative URLs
+// that resolve to https://localhost/... inside the WebView and silently fail).
+const extraEnv = {};
+const envFile = resolve(root, '.env.capacitor');
+if (existsSync(envFile)) {
+  for (const line of readFileSync(envFile, 'utf8').split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const m = trimmed.match(/^([A-Z0-9_]+)=(.*)$/);
+    if (m) extraEnv[m[1]] = m[2].replace(/^"(.*)"$/, '$1');
+  }
+  console.log(`[build-capacitor] loaded ${Object.keys(extraEnv).length} vars from .env.capacitor`);
+}
+if (process.env.NEXT_PUBLIC_API_BASE) {
+  extraEnv.NEXT_PUBLIC_API_BASE = process.env.NEXT_PUBLIC_API_BASE;  // env wins over file
+}
+console.log(`[build-capacitor] NEXT_PUBLIC_API_BASE = ${extraEnv.NEXT_PUBLIC_API_BASE || '(empty — APK will not reach the backend!)'}`);
+
 stash();
 
 const result = spawnSync(
@@ -53,7 +73,7 @@ const result = spawnSync(
   {
     stdio: ['inherit', 'inherit', 'inherit'],
     shell: process.platform === 'win32',
-    env: { ...process.env, BUILD_TARGET: 'capacitor' },
+    env: { ...process.env, ...extraEnv, BUILD_TARGET: 'capacitor' },
   }
 );
 

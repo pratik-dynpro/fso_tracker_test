@@ -50,6 +50,9 @@ jobs:
           fi
 
       - name: Build web assets + Capacitor sync
+        env:
+          NEXT_PUBLIC_API_BASE: ${{ secrets.NEXT_PUBLIC_API_BASE }}
+          NEXT_PUBLIC_BUILD_TARGET: capacitor
         run: npm run cap:sync
 
       - name: Make gradlew executable
