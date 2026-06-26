@@ -2,14 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import type * as LType from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { Loader } from '@googlemaps/js-api-loader';
 import type { PositionDTO, TripSummary } from '@/lib/types';
 import './dispatch.css';
 
 const POLL_MS = 4000;
-const DEFAULT_CENTER: [number, number] = [22.5937, 78.9629]; // India, until a technician loads
+const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 22.5937, lng: 78.9629 }; // India, until a technician loads
 const DISPATCH_PASSWORD = process.env.NEXT_PUBLIC_DISPATCH_PASSWORD || 'Dynpro@1996';
+const GMAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+// Dashed-line symbol for "estimated" segments — Google Maps fakes dashes by
+// repeating a single line glyph along an otherwise-invisible polyline.
+const DASHED_SYMBOL: google.maps.Symbol = {
+  path: 'M 0,-1 0,1',
+  strokeOpacity: 1,
+  scale: 3,
+};
 
 export default function DispatchPage() {
   const [positions, setPositions] = useState<PositionDTO[]>([]);
@@ -107,37 +115,39 @@ export default function DispatchPage() {
 
   // ---- map refs ----
   const deletedIds = useRef<Set<string>>(new Set());
-  const LRef = useRef<typeof import('leaflet') | null>(null);
-  const mapRef = useRef<LType.Map | null>(null);
-  const markers = useRef<Map<string, LType.CircleMarker>>(new Map());
-  const startMarkers = useRef<Map<string, LType.CircleMarker>>(new Map());
-  const destMarkers = useRef<Map<string, LType.CircleMarker>>(new Map());
-  const measuredLines = useRef<Map<string, LType.Polyline>>(new Map());
-  const estLines = useRef<Map<string, LType.Polyline>>(new Map());
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markers = useRef<Map<string, google.maps.Marker>>(new Map());
+  const startMarkers = useRef<Map<string, google.maps.Marker>>(new Map());
+  const destMarkers = useRef<Map<string, google.maps.Marker>>(new Map());
+  const measuredLines = useRef<Map<string, google.maps.Polyline>>(new Map());
+  const estLines = useRef<Map<string, google.maps.Polyline>>(new Map());
   const didFit = useRef(false);
 
-  // ---- create the OpenStreetMap (Leaflet) ----
+  // ---- create the Google Map ----
   useEffect(() => {
     if (!authed) return;
+    if (!GMAPS_KEY) {
+      console.warn('[dispatch] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set; map will not load.');
+      return;
+    }
     let cancelled = false;
-    (async () => {
-      const L = (await import('leaflet')).default;
+    const loader = new Loader({ apiKey: GMAPS_KEY, version: 'weekly' });
+    loader.load().then((google) => {
       if (cancelled) return;
       const el = document.getElementById('map');
       if (!el || mapRef.current) return;
-      const map = L.map(el).setView(DEFAULT_CENTER, 5);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(map);
-      LRef.current = L;
+      const map = new google.maps.Map(el, {
+        center: DEFAULT_CENTER,
+        zoom: 5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        clickableIcons: false,
+      });
       mapRef.current = map;
-      setTimeout(() => map.invalidateSize(), 200);
       setMapReady(true);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    }).catch((e) => console.error('[dispatch] Google Maps failed to load', e));
+    return () => { cancelled = true; };
   }, [authed]);
 
   // ---- poll positions ----
@@ -168,106 +178,135 @@ export default function DispatchPage() {
 
   // ---- draw on map ----
   useEffect(() => {
-    const L = LRef.current;
     const map = mapRef.current;
-    if (!L || !map || !mapReady) return;
+    if (!map || !mapReady) return;
 
     const seen = new Set<string>();
-    const allPts: [number, number][] = [];
+    const allPts: google.maps.LatLngLiteral[] = [];
+
+    const circle = (fillColor: string, scale: number) => ({
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor,
+      fillOpacity: 1,
+      strokeColor: '#ffffff',
+      strokeWeight: 2,
+      scale,
+    });
 
     for (const p of positions) {
       seen.add(p.tripId);
       const color = p.stale ? '#e2640f' : '#1f8f55';
 
-      // technician marker (only if it has a position)
+      // technician marker
       if (p.last) {
-        const ll: [number, number] = [p.last.lat, p.last.lng];
-        allPts.push(ll);
+        const pos: google.maps.LatLngLiteral = { lat: p.last.lat, lng: p.last.lng };
+        allPts.push(pos);
         let m = markers.current.get(p.tripId);
         if (!m) {
-          m = L.circleMarker(ll, { radius: 8, color: '#fff', weight: 3, fillColor: color, fillOpacity: 1 });
-          m.addTo(map);
-          m.on('click', () => setSelected(p.tripId));
-          m.bindTooltip('', { permanent: true, direction: 'right', offset: [8, 0], className: 'veh-label' });
+          m = new google.maps.Marker({
+            position: pos,
+            map,
+            icon: circle(color, 8),
+            label: { text: `${p.driverName}${p.stale ? ' (lost)' : ''}`, color: '#0f141c', fontWeight: '600', fontSize: '12px', className: 'veh-label-html' },
+            title: p.driverName,
+            zIndex: 1000,
+          });
+          m.addListener('click', () => setSelected(p.tripId));
           markers.current.set(p.tripId, m);
         } else {
-          m.setLatLng(ll);
-          m.setStyle({ fillColor: color });
+          m.setPosition(pos);
+          m.setIcon(circle(color, 8));
+          m.setLabel({ text: `${p.driverName}${p.stale ? ' (lost)' : ''}`, color: '#0f141c', fontWeight: '600', fontSize: '12px', className: 'veh-label-html' });
         }
-        m.setTooltipContent(`${p.driverName}${p.stale ? ' (lost)' : ''}`);
       }
 
-      // split track into measured vs estimated
-      const measured: [number, number][] = [];
-      const estSegs: [number, number][][] = [];
-      let prev: [number, number] | null = null;
+      // split track into measured + estimated segments
+      const measured: google.maps.LatLngLiteral[] = [];
+      const estSegs: google.maps.LatLngLiteral[] = [];
+      let prev: google.maps.LatLngLiteral | null = null;
       for (const pt of p.track) {
-        const ll: [number, number] = [pt.lat, pt.lng];
-        if (pt.isGap && prev) estSegs.push([prev, ll]);
-        else measured.push(ll);
+        const ll: google.maps.LatLngLiteral = { lat: pt.lat, lng: pt.lng };
+        if (pt.isGap && prev) { estSegs.push(prev, ll); }
+        else { measured.push(ll); }
         prev = ll;
       }
 
       let ml = measuredLines.current.get(p.tripId);
       if (!ml) {
-        ml = L.polyline(measured, { color: '#1f8f55', weight: 4, opacity: 0.95 }).addTo(map);
+        ml = new google.maps.Polyline({
+          path: measured, map,
+          strokeColor: '#1f8f55', strokeWeight: 4, strokeOpacity: 0.95,
+        });
         measuredLines.current.set(p.tripId, ml);
       } else {
-        ml.setLatLngs(measured);
+        ml.setPath(measured);
       }
 
       let el = estLines.current.get(p.tripId);
       if (!el) {
-        el = L.polyline(estSegs, { color: '#e2640f', weight: 4, dashArray: '4 8' }).addTo(map);
+        el = new google.maps.Polyline({
+          path: estSegs, map,
+          strokeColor: '#e2640f', strokeOpacity: 0,
+          icons: [{ icon: { ...DASHED_SYMBOL, strokeColor: '#e2640f' }, offset: '0', repeat: '12px' }],
+        });
         estLines.current.set(p.tripId, el);
       } else {
-        el.setLatLngs(estSegs);
+        el.setPath(estSegs);
       }
 
-      // start marker (blue dot)
+      // start marker (blue)
       if (p.start) {
-        const ll: [number, number] = [p.start.lat, p.start.lng];
-        allPts.push(ll);
+        const pos: google.maps.LatLngLiteral = { lat: p.start.lat, lng: p.start.lng };
+        allPts.push(pos);
         let sm = startMarkers.current.get(p.tripId);
         if (!sm) {
-          sm = L.circleMarker(ll, { radius: 5, color: '#fff', weight: 2, fillColor: '#2b6cb0', fillOpacity: 1 });
-          sm.addTo(map);
-          sm.bindTooltip('Start', { permanent: true, direction: 'left', className: 'veh-label start' });
+          sm = new google.maps.Marker({ position: pos, map, icon: circle('#2b6cb0', 5), title: 'Start' });
           startMarkers.current.set(p.tripId, sm);
         } else {
-          sm.setLatLng(ll);
+          sm.setPosition(pos);
         }
       }
 
-      // destination marker (orange)
+      // destination marker (orange) — clicking it opens Google Maps directions
       if (p.destination) {
-        const ll: [number, number] = [p.destination.lat, p.destination.lng];
-        allPts.push(ll);
+        const pos: google.maps.LatLngLiteral = { lat: p.destination.lat, lng: p.destination.lng };
+        allPts.push(pos);
         let dm = destMarkers.current.get(p.tripId);
         if (!dm) {
-          dm = L.circleMarker(ll, { radius: 7, color: '#fff', weight: 3, fillColor: '#e2640f', fillOpacity: 1 });
-          dm.addTo(map);
-          dm.bindTooltip('Job', { permanent: true, direction: 'right', className: 'veh-label job' });
+          dm = new google.maps.Marker({ position: pos, map, icon: circle('#e2640f', 7), title: 'Job destination — click for directions' });
+          dm.addListener('click', () => {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${pos.lat},${pos.lng}&travelmode=driving`;
+            window.open(url, '_blank');
+          });
           destMarkers.current.set(p.tripId, dm);
         } else {
-          dm.setLatLng(ll);
+          dm.setPosition(pos);
         }
       }
     }
 
-    // remove layers for trips no longer present
-    const drop = (mapRefObj: Map<string, LType.Layer>) => {
-      for (const [id, layer] of mapRefObj) if (!seen.has(id)) { map.removeLayer(layer); mapRefObj.delete(id); }
+    // remove overlays for trips no longer present
+    const dropMarkers = (m: Map<string, google.maps.Marker>) => {
+      for (const [id, mk] of m) if (!seen.has(id)) { mk.setMap(null); m.delete(id); }
     };
-    drop(markers.current as unknown as Map<string, LType.Layer>);
-    drop(startMarkers.current as unknown as Map<string, LType.Layer>);
-    drop(destMarkers.current as unknown as Map<string, LType.Layer>);
-    drop(measuredLines.current as unknown as Map<string, LType.Layer>);
-    drop(estLines.current as unknown as Map<string, LType.Layer>);
+    const dropLines = (m: Map<string, google.maps.Polyline>) => {
+      for (const [id, ln] of m) if (!seen.has(id)) { ln.setMap(null); m.delete(id); }
+    };
+    dropMarkers(markers.current);
+    dropMarkers(startMarkers.current);
+    dropMarkers(destMarkers.current);
+    dropLines(measuredLines.current);
+    dropLines(estLines.current);
 
     if (allPts.length && !didFit.current) {
-      if (allPts.length === 1) map.setView(allPts[0], 15);
-      else map.fitBounds(L.latLngBounds(allPts).pad(0.3));
+      if (allPts.length === 1) {
+        map.setCenter(allPts[0]);
+        map.setZoom(15);
+      } else {
+        const bounds = new google.maps.LatLngBounds();
+        allPts.forEach((p) => bounds.extend(p));
+        map.fitBounds(bounds, 50);
+      }
       didFit.current = true;
     }
   }, [positions, mapReady]);
@@ -276,7 +315,7 @@ export default function DispatchPage() {
   useEffect(() => {
     const map = mapRef.current;
     const p = positions.find((x) => x.tripId === selected);
-    if (map && p?.last) map.panTo([p.last.lat, p.last.lng]);
+    if (map && p?.last) map.panTo({ lat: p.last.lat, lng: p.last.lng });
   }, [selected, positions]);
 
   // ---- password gate ----

@@ -151,6 +151,13 @@ export default function TrackPage() {
         setPhase((p) => (p === 'lost' ? 'tracking' : p));
       },
     });
+
+    // Open Google Maps directions to the destination in a new tab / native
+    // Maps app. The tracking page stays mounted so GPS keeps recording.
+    if (dest) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${dest.lat},${dest.lng}&travelmode=driving`;
+      window.open(url, '_blank');
+    }
   }
 
   async function stop() {

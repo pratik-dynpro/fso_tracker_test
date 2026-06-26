@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import type * as LType from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { Loader } from '@googlemaps/js-api-loader';
 import './trip.css';
+
+const GMAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+const DASHED_SYMBOL: google.maps.Symbol = {
+  path: 'M 0,-1 0,1',
+  strokeOpacity: 1,
+  scale: 3,
+};
 
 interface TripPoint { lat: number; lng: number; accuracy: number | null; recordedAt: string; isGap: boolean; }
 interface TripDetail {
@@ -35,7 +41,7 @@ export default function TripClient() {
   const id = String(params.id);
   const [data, setData] = useState<TripDetail | null>(null);
   const [error, setError] = useState('');
-  const mapRef = useRef<LType.Map | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   useEffect(() => {
     fetch(`/api/trips/${id}`, { cache: 'no-store' })
@@ -48,61 +54,84 @@ export default function TripClient() {
   useEffect(() => {
     if (!data || mapRef.current) return;
     if (data.points.length === 0 && !data.trip.destination) return;
+    if (!GMAPS_KEY) {
+      console.warn('[trip] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set; map will not load.');
+      return;
+    }
     let cancelled = false;
-    (async () => {
-      const L = (await import('leaflet')).default;
+    const loader = new Loader({ apiKey: GMAPS_KEY, version: 'weekly' });
+    loader.load().then((google) => {
       if (cancelled) return;
       const el = document.getElementById('trip-map');
       if (!el) return;
-      const map = L.map(el);
+
+      const map = new google.maps.Map(el, {
+        center: { lat: 22.5937, lng: 78.9629 },
+        zoom: 5,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        clickableIcons: false,
+      });
       mapRef.current = map;
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(map);
 
-      const all: [number, number][] = [];
+      const circle = (fill: string, scale: number, stroke = '#fff') => ({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: fill, fillOpacity: 1, strokeColor: stroke, strokeWeight: 2, scale,
+      });
 
-      // build measured + estimated segments
-      const measured: [number, number][] = [];
-      const estSegs: [number, number][][] = [];
-      let prev: [number, number] | null = null;
+      const all: google.maps.LatLngLiteral[] = [];
+
+      // measured + estimated segments
+      const measured: google.maps.LatLngLiteral[] = [];
+      const estSegs: google.maps.LatLngLiteral[] = [];
+      let prev: google.maps.LatLngLiteral | null = null;
       for (const pt of data.points) {
-        const ll: [number, number] = [pt.lat, pt.lng];
+        const ll: google.maps.LatLngLiteral = { lat: pt.lat, lng: pt.lng };
         all.push(ll);
-        if (pt.isGap && prev) estSegs.push([prev, ll]);
+        if (pt.isGap && prev) { estSegs.push(prev, ll); }
         else measured.push(ll);
         prev = ll;
       }
-      if (measured.length) L.polyline(measured, { color: '#1f8f55', weight: 4 }).addTo(map);
-      if (estSegs.length) L.polyline(estSegs, { color: '#e2640f', weight: 4, dashArray: '4 8' }).addTo(map);
+      if (measured.length) {
+        new google.maps.Polyline({ path: measured, map, strokeColor: '#1f8f55', strokeWeight: 4 });
+      }
+      if (estSegs.length) {
+        new google.maps.Polyline({
+          path: estSegs, map, strokeColor: '#e2640f', strokeOpacity: 0,
+          icons: [{ icon: { ...DASHED_SYMBOL, strokeColor: '#e2640f' }, offset: '0', repeat: '12px' }],
+        });
+      }
 
       // start + end markers
       if (data.points.length) {
         const s = data.points[0];
-        L.circleMarker([s.lat, s.lng], { radius: 6, color: '#fff', weight: 2, fillColor: '#2b6cb0', fillOpacity: 1 })
-          .addTo(map)
-          .bindTooltip('Start', { permanent: true, direction: 'left', className: 'veh-label start' });
+        new google.maps.Marker({ position: { lat: s.lat, lng: s.lng }, map, icon: circle('#2b6cb0', 6), title: 'Start' });
         const e = data.points[data.points.length - 1];
-        L.circleMarker([e.lat, e.lng], { radius: 6, color: '#fff', weight: 2, fillColor: '#1b1f27', fillOpacity: 1 })
-          .addTo(map)
-          .bindTooltip('End', { permanent: true, direction: 'right', className: 'veh-label end' });
+        new google.maps.Marker({ position: { lat: e.lat, lng: e.lng }, map, icon: circle('#1b1f27', 6), title: 'End' });
       }
 
       // destination
       if (data.trip.destination) {
         const d = data.trip.destination;
-        all.push([d.lat, d.lng]);
-        L.circleMarker([d.lat, d.lng], { radius: 7, color: '#fff', weight: 3, fillColor: '#e2640f', fillOpacity: 1 })
-          .addTo(map)
-          .bindTooltip('Job', { permanent: true, direction: 'right', className: 'veh-label job' });
+        const pos = { lat: d.lat, lng: d.lng };
+        all.push(pos);
+        const m = new google.maps.Marker({ position: pos, map, icon: circle('#e2640f', 7), title: 'Job destination — click for directions' });
+        m.addListener('click', () => {
+          const url = `https://www.google.com/maps/dir/?api=1&destination=${pos.lat},${pos.lng}&travelmode=driving`;
+          window.open(url, '_blank');
+        });
       }
 
-      if (all.length === 1) map.setView(all[0], 15);
-      else if (all.length > 1) map.fitBounds(L.latLngBounds(all).pad(0.3));
-      else map.setView([22.5937, 78.9629], 5);
-      setTimeout(() => map.invalidateSize(), 200);
-    })();
+      if (all.length === 1) {
+        map.setCenter(all[0]);
+        map.setZoom(15);
+      } else if (all.length > 1) {
+        const bounds = new google.maps.LatLngBounds();
+        all.forEach((p) => bounds.extend(p));
+        map.fitBounds(bounds, 50);
+      }
+    }).catch((e) => console.error('[trip] Google Maps failed to load', e));
     return () => { cancelled = true; };
   }, [data]);
 
