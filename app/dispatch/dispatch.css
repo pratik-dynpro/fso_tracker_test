@@ -1,9 +1,13 @@
-.dsp-wrap{max-width:1180px;margin:0 auto;padding:18px 18px 50px}
+/* Dispatch page — Poppins for titles, darker text for readability. */
+.dsp-wrap{max-width:1180px;margin:0 auto;padding:18px 18px 50px;color:#0f141c}
+.dsp-wrap h2,.dsp-wrap h3{font-family:var(--font-display),"Segoe UI",sans-serif;
+  font-weight:600;letter-spacing:-.01em;color:#0f141c}
 .console{display:grid;grid-template-columns:1fr 320px;gap:0;border:1px solid var(--line-strong);
   border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 6px 30px rgba(27,31,39,.08)}
 .console-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
   gap:12px;padding:11px 16px;border-bottom:1px solid var(--line)}
-.console-title{font-weight:700;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.console-title{font-family:var(--font-display),"Segoe UI",sans-serif;font-weight:600;
+  font-size:1.02rem;letter-spacing:-.01em;color:#0f141c;display:flex;align-items:center;gap:10px}
 .live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.64rem;
   text-transform:uppercase;letter-spacing:.08em;color:var(--go);background:var(--go-tint);
   border:1px solid #bfe2cc;padding:3px 9px;border-radius:20px}
@@ -24,23 +28,24 @@
 .mapmsg code{background:#fff;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-family:var(--mono);font-size:.85em}
 
 .roster{border-left:1px solid var(--line);background:var(--surface);max-height:573px;overflow-y:auto}
-.roster-head{padding:12px 15px;border-bottom:1px solid var(--line);font-family:var(--mono);
-  font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--slate);
+.roster-head{padding:12px 15px;border-bottom:1px solid var(--line);font-family:var(--font-display),sans-serif;
+  font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#1b1f27;
   display:flex;justify-content:space-between;position:sticky;top:0;background:var(--surface)}
 .tech{padding:13px 15px;border-bottom:1px solid var(--line);cursor:pointer}
 .tech.sel{background:var(--hi-tint);box-shadow:inset 3px 0 0 var(--hi)}
 .tech-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.tech-name{font-weight:700;font-size:.94rem}
+.tech-name{font-family:var(--font-display),"Segoe UI",sans-serif;font-weight:600;
+  font-size:1rem;letter-spacing:-.005em;color:#0f141c}
 .st{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;
   padding:2px 7px;border-radius:20px;border:1px solid}
 .st-en{color:var(--go);background:var(--go-tint);border-color:#bfe2cc}
 .st-off{color:var(--caution);background:var(--caution-tint);border-color:#f0c9c9}
 .tech-meta{display:flex;gap:16px;margin-top:8px}
-.tech-meta div{font-size:.72rem;color:var(--slate)}
-.tech-meta b{display:block;font-size:1rem;color:var(--ink);font-weight:700}
+.tech-meta div{font-size:.78rem;color:#3a4250;font-weight:500}
+.tech-meta b{display:block;font-size:1.02rem;color:#0f141c;font-weight:700}
 .tech-meta .est b{color:var(--hi-dark)}
-.job-ref{font-family:var(--mono);font-size:.64rem;color:var(--faint);margin-top:7px}
-.empty{padding:30px 16px;text-align:center;color:var(--faint);font-size:.9rem}
+.job-ref{font-family:var(--mono);font-size:.7rem;color:#3a4250;margin-top:7px;font-weight:500}
+.empty{padding:30px 16px;text-align:center;color:#3a4250;font-size:.92rem;font-weight:500}
 /* admin actions in roster */
 .tech-actions{display:flex;gap:8px;margin-top:11px}
 .act{font-family:var(--mono);font-size:.68rem;border-radius:7px;padding:6px 10px;cursor:pointer;border:1px solid}
@@ -49,24 +54,27 @@
 .act.del{background:var(--caution-tint);border-color:#f0c9c9;color:var(--caution)}
 .act.del:hover{background:#f7dada}
 
-/* trip history / cleanup */
+/* trip history / cleanup — readable dark text, Poppins on titles */
 .history{margin-top:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
 .hist-toggle{width:100%;text-align:left;background:var(--tint);border:0;border-bottom:1px solid var(--line);
-  padding:12px 15px;font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;
-  color:var(--slate);cursor:pointer}
-.hist-toggle:hover{color:var(--ink)}
+  padding:14px 16px;font-family:var(--font-display),"Segoe UI",sans-serif;font-size:.92rem;
+  font-weight:600;letter-spacing:-.005em;color:#0f141c;cursor:pointer}
+.hist-toggle:hover{background:#eaeef3;color:#000}
 .hist-list{max-height:340px;overflow-y:auto}
 .hist-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:11px 15px;border-bottom:1px solid var(--line)}
+  padding:13px 16px;border-bottom:1px solid var(--line)}
 .hist-row:last-child{border-bottom:0}
 .hist-main{flex:1;text-decoration:none;color:inherit;border-radius:8px;padding:4px;margin:-4px}
 .hist-main:hover{background:var(--tint)}
 .hist-main:hover .hist-view{color:var(--hi-dark)}
-.hist-view{font-family:var(--mono);font-size:.6rem;color:var(--faint);margin-left:auto}
+.hist-view{font-family:var(--font-display),sans-serif;font-size:.74rem;font-weight:600;
+  color:#3a4250;margin-left:auto;letter-spacing:.01em}
 .hist-top{display:flex;align-items:center;gap:9px}
-.hist-top b{font-size:.92rem}
-.hist-meta{font-family:var(--mono);font-size:.66rem;color:var(--faint);margin-top:3px}
-.st-ended{color:var(--slate);background:var(--tint);border-color:var(--line-strong)}
+.hist-top b{font-family:var(--font-display),"Segoe UI",sans-serif;font-size:1rem;
+  font-weight:600;letter-spacing:-.005em;color:#0f141c}
+.hist-meta{font-family:var(--body);font-size:.82rem;color:#2a323d;font-weight:500;
+  margin-top:4px;line-height:1.45}
+.st-ended{color:#3a4250;background:var(--tint);border-color:var(--line-strong);font-weight:600}
 
 /* password gate */
 .gate{max-width:420px;margin:0 auto;padding:70px 22px}
